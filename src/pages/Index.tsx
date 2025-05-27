@@ -1,9 +1,9 @@
-
 import LautaroDemo from "@/components/LautaroDemo";
 import ExperiencePaths from "@/components/ExperiencePaths";
 import Testimonials from "@/components/Testimonials";
 import PricingPlans from "@/components/PricingPlans";
 import PageFooter from "@/components/PageFooter";
+import LautaroFeaturesSection from "@/components/LautaroFeaturesSection";
 
 const Index = () => {
   return (
@@ -26,6 +26,9 @@ const Index = () => {
         <h2 className="text-3xl font-bold text-vino mb-6">Probá un poco su magia</h2>
         <LautaroDemo />
       </section>
+
+      {/* NUEVA SECCIÓN: Funciones Clave */}
+      <LautaroFeaturesSection />
 
       {/* Dos caminos visuales */}
       <section className="flex flex-col items-center py-14 px-4 bg-sand">
