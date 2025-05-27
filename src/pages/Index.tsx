@@ -1,9 +1,11 @@
+
 import LautaroDemo from "@/components/LautaroDemo";
 import ExperiencePaths from "@/components/ExperiencePaths";
 import Testimonials from "@/components/Testimonials";
 import PricingPlans from "@/components/PricingPlans";
 import PageFooter from "@/components/PageFooter";
 import LautaroFeaturesSection from "@/components/LautaroFeaturesSection";
+import MomentoLautaro from "@/components/MomentoLautaro";
 
 const Index = () => {
   return (
@@ -55,6 +57,12 @@ const Index = () => {
       {/* Planes */}
       <section className="flex flex-col items-center py-14 px-4 bg-sand">
         <PricingPlans />
+
+        {/* Momento Lautaro antes del último CTA */}
+        <div className="w-full mt-10 mb-2 max-w-3xl">
+          <MomentoLautaro />
+        </div>
+
         <a href="#planes" className="mt-8 bg-vino hover:bg-terracota transition-colors px-8 py-4 rounded-full text-beige text-lg font-semibold shadow-lg hover:scale-105 animate-fade-in font-quicksand">
           Desbloqueá el modo Chamuyo Maestro
         </a>
@@ -67,3 +75,4 @@ const Index = () => {
 };
 
 export default Index;
+
