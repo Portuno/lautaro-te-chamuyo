@@ -25,6 +25,12 @@ const Index = () => {
         >
           Ver todas las funciones como asistente
         </a>
+        <a
+          href="/chat"
+          className="mt-4 bg-vino hover:bg-coral text-beige hover:text-vino font-semibold px-8 py-3 rounded-full shadow-lg transition-colors font-quicksand text-lg"
+        >
+          Hablá con Lautaro
+        </a>
       </section>
 
       {/* Mini demo interactiva */}
