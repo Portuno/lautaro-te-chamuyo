@@ -1,4 +1,3 @@
-
 import ChatHeader from "@/components/ChatHeader";
 import ChatSidebar from "@/components/ChatSidebar";
 import ChatMessageBubble from "@/components/ChatMessageBubble";
@@ -7,8 +6,17 @@ import QuickActionsBar from "@/components/QuickActionsBar";
 import TypingIndicator from "@/components/TypingIndicator";
 import { useState } from "react";
 
+// Add type that matches the props for ChatMessageBubble
+type DemoMessage = {
+  id: number;
+  sender: "user" | "lautaro";
+  content: string;
+  mood?: "amable" | "picaro" | "tierno";
+  time?: string;
+};
+
 // Mensajes demo para la UI inicial
-const DEMO_MESSAGES = [
+const DEMO_MESSAGES: DemoMessage[] = [
   {
     id: 1,
     sender: "lautaro",
@@ -20,6 +28,7 @@ const DEMO_MESSAGES = [
     id: 2,
     sender: "user",
     content: "Recomendame algo para levantarme el ánimo.",
+    // No mood for user (optional)
     time: "10:12",
   },
   {
