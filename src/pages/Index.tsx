@@ -19,6 +19,12 @@ const Index = () => {
         <a href="#demo" className="bg-vino hover:bg-terracota transition-colors px-8 py-4 mt-2 rounded-full text-beige text-lg font-semibold shadow-lg hover:scale-105 inline-block animate-fade-in font-quicksand">
           Conocé a Lautaro
         </a>
+        <a
+          href="/funciones"
+          className="mt-4 bg-coral hover:bg-vino text-vino hover:text-beige font-semibold px-8 py-3 rounded-full shadow-lg transition-colors font-quicksand text-lg"
+        >
+          Ver todas las funciones como asistente
+        </a>
       </section>
 
       {/* Mini demo interactiva */}
