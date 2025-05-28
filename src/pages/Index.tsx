@@ -6,6 +6,7 @@ import PricingPlans from "@/components/PricingPlans";
 import PageFooter from "@/components/PageFooter";
 import LautaroFeaturesSection from "@/components/LautaroFeaturesSection";
 import MomentoLautaro from "@/components/MomentoLautaro";
+import LaboratorioChamuyo from "@/components/LaboratorioChamuyo";
 
 const Index = () => {
   return (
@@ -13,7 +14,7 @@ const Index = () => {
       {/* Hero - Encabezado */}
       <section className="w-full bg-gradient-to-br from-terracota to-coral py-16 px-4 flex flex-col items-center justify-center shadow-md rounded-b-3xl animate-fade-in">
         <h1 className="text-5xl md:text-6xl font-bold mb-6 text-beige drop-shadow font-quicksand text-center leading-tight" style={{letterSpacing: "-0.02em"}}>
-          “¿Ya te dijeron hoy lo increíble que sos?”
+          "¿Ya te dijeron hoy lo increíble que sos?"
         </h1>
         <p className="text-xl text-beige mb-10 text-center max-w-xl">
           Lautaro es tu asistente argentino: te ayuda, te chamuya y hace que cada día tenga un poco más de magia.
@@ -43,6 +44,9 @@ const Index = () => {
 
       {/* NUEVA SECCIÓN: Funciones Clave */}
       <LautaroFeaturesSection />
+
+      {/* Laboratorio de Chamuyo */}
+      <LaboratorioChamuyo />
 
       {/* Dos caminos visuales */}
       <section className="flex flex-col items-center py-14 px-4 bg-sand">
@@ -75,4 +79,3 @@ const Index = () => {
 };
 
 export default Index;
-
