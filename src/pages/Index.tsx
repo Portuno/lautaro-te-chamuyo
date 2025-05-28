@@ -6,11 +6,15 @@ import PricingPlans from "@/components/PricingPlans";
 import PageFooter from "@/components/PageFooter";
 import LautaroFeaturesSection from "@/components/LautaroFeaturesSection";
 import MomentoLautaro from "@/components/MomentoLautaro";
-import LaboratorioChamuyo from "@/components/LaboratorioChamuyo";
+import LaboratorioPreview from "@/components/LaboratorioPreview";
+import NavigationBar from "@/components/NavigationBar";
 
 const Index = () => {
   return (
     <div className="bg-sand min-h-screen flex flex-col">
+      {/* Navigation Bar */}
+      <NavigationBar />
+
       {/* Hero - Encabezado */}
       <section className="w-full bg-gradient-to-br from-terracota to-coral py-16 px-4 flex flex-col items-center justify-center shadow-md rounded-b-3xl animate-fade-in">
         <h1 className="text-5xl md:text-6xl font-bold mb-6 text-beige drop-shadow font-quicksand text-center leading-tight" style={{letterSpacing: "-0.02em"}}>
@@ -45,8 +49,8 @@ const Index = () => {
       {/* NUEVA SECCIÓN: Funciones Clave */}
       <LautaroFeaturesSection />
 
-      {/* Laboratorio de Chamuyo */}
-      <LaboratorioChamuyo />
+      {/* Vista previa del Laboratorio de Chamuyo */}
+      <LaboratorioPreview />
 
       {/* Dos caminos visuales */}
       <section className="flex flex-col items-center py-14 px-4 bg-sand">
