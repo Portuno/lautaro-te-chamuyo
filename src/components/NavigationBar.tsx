@@ -2,6 +2,7 @@
 import React from "react";
 import { Menu, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import { useState } from "react";
 
 const NavigationBar = () => {
@@ -19,22 +20,22 @@ const NavigationBar = () => {
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <a href="/" className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-2">
             <span className="text-2xl font-bold text-beige font-quicksand">
               Lautaro
             </span>
-          </a>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {navItems.map((item) => (
-              <a
+              <Link
                 key={item.href}
-                href={item.href}
+                to={item.href}
                 className="text-beige hover:text-coral transition-colors font-medium font-quicksand"
               >
                 {item.label}
-              </a>
+              </Link>
             ))}
           </div>
 
@@ -56,14 +57,14 @@ const NavigationBar = () => {
           <div className="md:hidden pb-4">
             <div className="flex flex-col space-y-2">
               {navItems.map((item) => (
-                <a
+                <Link
                   key={item.href}
-                  href={item.href}
+                  to={item.href}
                   className="text-beige hover:text-coral transition-colors font-medium py-2 font-quicksand"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {item.label}
-                </a>
+                </Link>
               ))}
             </div>
           </div>
