@@ -12,4 +12,5 @@ const TypingIndicator = () => (
     </div>
   </div>
 );
+
 export default TypingIndicator;

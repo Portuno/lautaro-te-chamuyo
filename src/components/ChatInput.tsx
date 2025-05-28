@@ -25,4 +25,5 @@ const ChatInput = () => {
     </div>
   );
 };
+
 export default ChatInput;

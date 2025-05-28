@@ -46,4 +46,5 @@ const ChatHeader = () => {
     </header>
   );
 };
+
 export default ChatHeader;

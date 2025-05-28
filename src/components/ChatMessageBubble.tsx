@@ -7,6 +7,7 @@ interface Props {
   mood?: "amable" | "picaro" | "tierno";
   time?: string;
 }
+
 const MOOD_BG: Record<string, string> = {
   amable: "bg-coral/80",
   picaro: "bg-terracota/90",
@@ -50,4 +51,5 @@ const ChatMessageBubble = ({ sender, content, mood = "amable", time }: Props) =>
     </div>
   );
 };
+
 export default ChatMessageBubble;

@@ -22,4 +22,5 @@ const QuickActionsBar = () => (
     ))}
   </div>
 );
+
 export default QuickActionsBar;
