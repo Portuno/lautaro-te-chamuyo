@@ -41,6 +41,51 @@ const DEMO_MESSAGES: DemoMessage[] = [
   },
 ];
 
+// Respuestas predefinidas de Lautaro
+const LAUTARO_RESPONSES = {
+  default: [
+    "¡Qué interesante lo que me contás! ¿Querés que profundicemos en eso? 😊",
+    "Me encanta cómo pensás. ¿Te gustaría que exploremos más sobre ese tema? 🤔",
+    "¡Qué buena onda! ¿Hay algo más en lo que pueda ayudarte? 😉",
+  ],
+  greeting: [
+    "¡Hola! ¿Cómo estás hoy? 😊",
+    "¡Qué bueno verte! ¿En qué puedo ayudarte? 🤵‍♂️",
+    "¡Hola! Estoy acá para lo que necesites 💫",
+  ],
+  mood: [
+    "¿Sabés qué? Tu sonrisa es contagiosa, incluso por chat 😊",
+    "Si fueras un color, serías el más brillante del arcoíris 🌈",
+    "¿Querés que te cuente un chiste? Siempre funciona para levantar el ánimo 😉",
+  ],
+};
+
+const getLautaroResponse = (message: string): { content: string; mood: "amable" | "picaro" | "tierno" } => {
+  const lowerMessage = message.toLowerCase();
+  
+  // Detectar saludos
+  if (lowerMessage.includes("hola") || lowerMessage.includes("buenas") || lowerMessage.includes("buen día")) {
+    return {
+      content: LAUTARO_RESPONSES.greeting[Math.floor(Math.random() * LAUTARO_RESPONSES.greeting.length)],
+      mood: "amable"
+    };
+  }
+  
+  // Detectar mensajes sobre el estado de ánimo
+  if (lowerMessage.includes("ánimo") || lowerMessage.includes("triste") || lowerMessage.includes("bajón")) {
+    return {
+      content: LAUTARO_RESPONSES.mood[Math.floor(Math.random() * LAUTARO_RESPONSES.mood.length)],
+      mood: "tierno"
+    };
+  }
+  
+  // Respuesta por defecto
+  return {
+    content: LAUTARO_RESPONSES.default[Math.floor(Math.random() * LAUTARO_RESPONSES.default.length)],
+    mood: "amable"
+  };
+};
+
 const Chat = () => {
   const [messages, setMessages] = useState(DEMO_MESSAGES);
   const [isTyping, setIsTyping] = useState(false);
@@ -57,11 +102,12 @@ const Chat = () => {
     
     // Simular respuesta de Lautaro después de 1 segundo
     setTimeout(() => {
+      const { content: responseContent, mood } = getLautaroResponse(content);
       const lautaroResponse: DemoMessage = {
         id: messages.length + 2,
         sender: "lautaro",
-        content: "¡Gracias por tu mensaje! Estoy procesando tu solicitud...",
-        mood: "amable",
+        content: responseContent,
+        mood,
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       };
       setMessages(prev => [...prev, lautaroResponse]);
