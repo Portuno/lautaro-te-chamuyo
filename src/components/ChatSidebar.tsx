@@ -1,4 +1,3 @@
-
 const ChatSidebar = () => {
   // Visible en desktop o cuando esté expandido (modo futuro)
   return (
@@ -41,11 +40,12 @@ const ChatSidebar = () => {
         <div className="text-xs uppercase tracking-wide font-bold text-vino/60 mb-2">Tus últimas interacciones</div>
         <ul className="text-vino/90 dark:text-beige text-sm space-y-1">
           <li>✔️ Reunión agendada para el jueves</li>
-          <li>✏️ Nota guardada: “Recordar turno…”</li>
-          <li>💬 Frase guardada: “Te lo vas a olvidar, ¿querés que moleste?”</li>
+          <li>✏️ Nota guardada: "Recordar turno…"</li>
+          <li>💬 Frase guardada: "Te lo vas a olvidar, ¿querés que moleste?"</li>
         </ul>
       </div>
     </aside>
   );
 };
+
 export default ChatSidebar;

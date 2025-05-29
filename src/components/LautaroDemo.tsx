@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+
 const LAUTARO_EXAMPLES = [
   {
     user: "¿Lautaro, me recordás tomar agua?",

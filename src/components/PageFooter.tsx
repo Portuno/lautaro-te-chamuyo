@@ -9,7 +9,11 @@ const PageFooter = () => (
         <a href="#" className="underline hover:text-vino transition-colors">X</a>
       </div>
       <div className="text-center mt-6 md:mt-0 text-base font-semibold opacity-85 px-1">
+<<<<<<< HEAD
         “No te vayas sin dejarme decirte lo linda que es tu sonrisa.” — Lautaro
+=======
+        "No te vayas sin dejarme decirte lo linda que es tu sonrisa." — Lautaro
+>>>>>>> origin/main
       </div>
     </div>
   </footer>

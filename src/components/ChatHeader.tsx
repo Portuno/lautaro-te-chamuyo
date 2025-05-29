@@ -1,4 +1,3 @@
-
 import { Menu } from "lucide-react";
 import { useState } from "react";
 
@@ -46,4 +45,5 @@ const ChatHeader = () => {
     </header>
   );
 };
+
 export default ChatHeader;

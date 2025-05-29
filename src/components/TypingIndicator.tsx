@@ -1,4 +1,3 @@
-
 const TypingIndicator = () => (
   <div className="flex items-center gap-2 px-8 py-1 text-vino/60 dark:text-beige animate-fade-in mt-2">
     <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-coral via-vino to-terracota flex items-center justify-center text-xl font-bold text-beige shadow">🤵‍♂️</div>
@@ -12,4 +11,5 @@ const TypingIndicator = () => (
     </div>
   </div>
 );
+
 export default TypingIndicator;

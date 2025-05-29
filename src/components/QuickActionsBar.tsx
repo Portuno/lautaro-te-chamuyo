@@ -1,4 +1,3 @@
-
 const QUICK_ACTIONS = [
   { icon: "📝", label: "Recordarme algo" },
   { icon: "🧠", label: "Tirame una idea" },
@@ -22,4 +21,5 @@ const QuickActionsBar = () => (
     ))}
   </div>
 );
+
 export default QuickActionsBar;

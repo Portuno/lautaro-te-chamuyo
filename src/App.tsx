@@ -8,7 +8,6 @@ import NotFound from "./pages/NotFound";
 import FuncionesAsistente from "./pages/FuncionesAsistente";
 import Chat from "./pages/Chat";
 import Laboratorio from "./pages/Laboratorio";
-import { MabotChat } from './components/MabotChat';
 
 const queryClient = new QueryClient();
 
@@ -23,7 +22,6 @@ const App = () => (
           <Route path="/funciones" element={<FuncionesAsistente />} />
           <Route path="/chat" element={<Chat />} />
           <Route path="/laboratorio" element={<Laboratorio />} />
-          <Route path="/mabot-chat" element={<MabotChat />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
