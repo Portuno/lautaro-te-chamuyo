@@ -14,7 +14,7 @@ export default defineConfig(({ mode }) => ({
     mode === 'development' &&
     componentTagger(),
   ].filter(Boolean),
-  base: '/Laubot/',
+  base: '/lautaro-te-chamuyo/',
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
