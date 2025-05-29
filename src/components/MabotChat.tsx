@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { AsyncMabotClient, MabotError } from '../lib/mabotClient';
+import { AsyncMabotClient, MabotError } from '../lib/mabotclient';
 import { UpdateOut } from '../lib/update';
 import { API_BASE_URL } from '../config';
 import ChatHeader from './ChatHeader';
@@ -15,6 +15,13 @@ interface Message {
   time?: string;
 }
 
+// Fallback responses when Mabot is not available
+const FALLBACK_RESPONSES = [
+  "¡Hola! Estoy en modo demo. Para una experiencia completa, configura las credenciales de Mabot.",
+  "¡Qué buena onda! En este modo demo no puedo conectarme al servidor, pero pronto estaré funcionando al 100%.",
+  "Me encanta que me escribas. Cuando tenga mis credenciales configuradas, podremos charlar mucho mejor.",
+];
+
 export function MabotChat() {
   const [client, setClient] = useState<AsyncMabotClient | null>(null);
   const [messages, setMessages] = useState<Message[]>([{
@@ -26,13 +33,24 @@ export function MabotChat() {
   const [isTyping, setIsTyping] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [useFallback, setUseFallback] = useState(false);
 
   const initializeClient = useCallback(async () => {
     try {
+      const username = import.meta.env.VITE_MABOT_USERNAME;
+      const password = import.meta.env.VITE_MABOT_PASSWORD;
+      
+      if (!username || !password) {
+        console.log('Mabot credentials not found, using fallback mode');
+        setUseFallback(true);
+        setIsInitialized(true);
+        return;
+      }
+
       const mabotClient = new AsyncMabotClient({
         baseUrl: API_BASE_URL,
-        username: import.meta.env.VITE_MABOT_USERNAME || '',
-        password: import.meta.env.VITE_MABOT_PASSWORD || '',
+        username,
+        password,
         timeout: 30000,
       });
       await mabotClient.loadToken();
@@ -40,10 +58,10 @@ export function MabotChat() {
       setIsInitialized(true);
       setError(null);
     } catch (err) {
-      const errorMessage = err instanceof MabotError 
-        ? err.message 
-        : 'Failed to initialize chat client. Please try again later.';
-      setError(errorMessage);
+      console.log('Failed to initialize Mabot client, using fallback mode');
+      setUseFallback(true);
+      setIsInitialized(true);
+      setError(null);
     }
   }, []);
 
@@ -52,11 +70,10 @@ export function MabotChat() {
   }, [initializeClient]);
 
   const handleSendMessage = async (input: string) => {
-    if (!client || !input.trim() || isTyping) return;
+    if (!input.trim() || isTyping) return;
     setIsTyping(true);
     setError(null);
-    const currentChatId = chatId || crypto.randomUUID();
-    if (!chatId) setChatId(currentChatId);
+    
     // Add user message
     setMessages(prev => [
       ...prev,
@@ -66,6 +83,27 @@ export function MabotChat() {
         time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }
     ]);
+
+    if (useFallback || !client) {
+      // Use fallback responses
+      setTimeout(() => {
+        const response = FALLBACK_RESPONSES[Math.floor(Math.random() * FALLBACK_RESPONSES.length)];
+        setMessages(prev => [
+          ...prev,
+          {
+            sender: 'lautaro',
+            content: response,
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+          }
+        ]);
+        setIsTyping(false);
+      }, 1000);
+      return;
+    }
+
+    const currentChatId = chatId || crypto.randomUUID();
+    if (!chatId) setChatId(currentChatId);
+    
     try {
       const response: UpdateOut = await client.sendMessage(currentChatId, input);
       const assistantMessage = response.messages[response.messages.length - 1];
@@ -110,6 +148,11 @@ export function MabotChat() {
         <ChatSidebar />
         <div className="w-full max-w-2xl mx-auto flex flex-col min-h-0 flex-1 relative">
           <div className="flex-1 overflow-y-auto px-2 pb-4 pt-[76px] md:px-6 md:pt-[90px] bg-transparent" style={{scrollbarGutter: 'stable'}}>
+            {useFallback && (
+              <div className="mb-4 p-3 bg-amber-100 text-amber-800 rounded-lg text-sm">
+                💡 Modo demo activo. Para conectar con Mabot, configura las variables de entorno.
+              </div>
+            )}
             {messages.map((msg, i) => (
               <ChatMessageBubble
                 key={i}
