@@ -42,8 +42,32 @@ const DEMO_MESSAGES: DemoMessage[] = [
 ];
 
 const Chat = () => {
-  const [messages] = useState(DEMO_MESSAGES);
-  const [isTyping, setIsTyping] = useState(true);
+  const [messages, setMessages] = useState(DEMO_MESSAGES);
+  const [isTyping, setIsTyping] = useState(false);
+
+  const handleSendMessage = (content: string) => {
+    const newMessage: DemoMessage = {
+      id: messages.length + 1,
+      sender: "user",
+      content,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+    setMessages(prev => [...prev, newMessage]);
+    setIsTyping(true);
+    
+    // Simular respuesta de Lautaro después de 1 segundo
+    setTimeout(() => {
+      const lautaroResponse: DemoMessage = {
+        id: messages.length + 2,
+        sender: "lautaro",
+        content: "¡Gracias por tu mensaje! Estoy procesando tu solicitud...",
+        mood: "amable",
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      };
+      setMessages(prev => [...prev, lautaroResponse]);
+      setIsTyping(false);
+    }, 1000);
+  };
 
   return (
     <div className="relative min-h-screen bg-gradient-to-br from-beige via-sand to-[#ffd6c0] dark:from-[#201016] dark:to-[#442134] flex flex-col">
@@ -75,7 +99,7 @@ const Chat = () => {
           <QuickActionsBar />
 
           {/* Input */}
-          <ChatInput />
+          <ChatInput onSendMessage={handleSendMessage} isTyping={isTyping} />
 
           {/* Opcional: barra de feedback, CTA suave */}
           <div className="text-center my-2 opacity-80 text-sm">
