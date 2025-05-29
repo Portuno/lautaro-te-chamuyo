@@ -1,0 +1,1 @@
+export const API_BASE_URL = 'https://back.mapeima.space:8443'; // Ajusta esto a tu URL base real 
