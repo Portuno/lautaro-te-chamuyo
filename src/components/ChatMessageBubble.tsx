@@ -1,16 +1,19 @@
 import { cn } from "@/lib/utils";
+import { type ConversationStyle } from "@/hooks/useChatConfig";
 
 interface Props {
   sender: "user" | "lautaro";
   content: string;
-  mood?: "amable" | "picaro" | "tierno";
+  mood?: ConversationStyle | "picaro";
   time?: string;
 }
 
 const MOOD_BG: Record<string, string> = {
   amable: "bg-coral/80",
-  picaro: "bg-terracota/90",
+  formal: "bg-sand/90",
+  divertido: "bg-terracota/80",
   tierno: "bg-vino/90 animate-pulse",
+  picaro: "bg-terracota/90",
   neutral: "bg-white dark:bg-[#26121a]",
 };
 

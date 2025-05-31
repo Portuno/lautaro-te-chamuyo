@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import FuncionesAsistente from "./pages/FuncionesAsistente";
+import Chat from "./pages/Chat";
 import { MabotChat } from "@/components/MabotChat";
 import Laboratorio from "./pages/Laboratorio";
 
@@ -20,7 +21,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/funciones" element={<FuncionesAsistente />} />
-          <Route path="/chat" element={<MabotChat />} />
+          <Route path="/chat" element={<Chat />} />
+          <Route path="/mabot-chat" element={<MabotChat />} />
           <Route path="/laboratorio" element={<Laboratorio />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

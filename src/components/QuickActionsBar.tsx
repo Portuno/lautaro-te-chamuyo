@@ -1,25 +1,64 @@
-const QUICK_ACTIONS = [
-  { icon: "📝", label: "Recordarme algo" },
-  { icon: "🧠", label: "Tirame una idea" },
-  { icon: "😌", label: "Decime algo lindo" },
-  { icon: "🧊", label: "Mantenete tranqui" },
-  { icon: "😏", label: "Ponete chamuyero" },
+interface QuickAction {
+  icon: string;
+  label: string;
+  message: string;
+}
+
+interface QuickActionsBarProps {
+  onSendMessage?: (message: string) => void;
+}
+
+const QUICK_ACTIONS: QuickAction[] = [
+  { 
+    icon: "📝", 
+    label: "Recordarme algo",
+    message: "Recordame algo importante para hoy"
+  },
+  { 
+    icon: "🧠", 
+    label: "Tirame una idea",
+    message: "Tirame una idea creativa para pasar el tiempo"
+  },
+  { 
+    icon: "😌", 
+    label: "Decime algo lindo",
+    message: "Decime algo lindo para alegrarme el día"
+  },
+  { 
+    icon: "🧊", 
+    label: "Mantenete tranqui",
+    message: "Ayudame a mantenerme tranquilo y relajado"
+  },
+  { 
+    icon: "😏", 
+    label: "Ponete chamuyero",
+    message: "Ponete un poco chamuyero conmigo"
+  },
 ];
 
-const QuickActionsBar = () => (
-  <div className="w-full flex gap-2 px-2 py-2 md:px-8 justify-between bg-sand/80 dark:bg-[#2e1e21]/70 border-t border-beige/60 sticky bottom-16 z-10">
-    {QUICK_ACTIONS.map((a, i) => (
-      <button
-        key={a.label}
-        className="flex flex-col items-center justify-center text-vino dark:text-beige text-sm px-2 py-1 rounded-lg hover:bg-coral/20 transition-all font-semibold"
-        type="button"
-        tabIndex={-1}
-      >
-        <span className="text-xl">{a.icon}</span>
-        <span className="text-xs mt-1">{a.label}</span>
-      </button>
-    ))}
-  </div>
-);
+const QuickActionsBar = ({ onSendMessage }: QuickActionsBarProps) => {
+  const handleActionClick = (action: QuickAction) => {
+    if (onSendMessage) {
+      onSendMessage(action.message);
+    }
+  };
+
+  return (
+    <div className="w-full flex gap-1 md:gap-2 px-2 py-2 md:px-8 justify-between bg-sand/80 dark:bg-[#2e1e21]/70 border-t border-beige/60 sticky bottom-16 z-10 overflow-x-auto">
+      {QUICK_ACTIONS.map((action, i) => (
+        <button
+          key={action.label}
+          onClick={() => handleActionClick(action)}
+          className="flex flex-col items-center justify-center text-vino dark:text-beige text-xs md:text-sm px-1 md:px-2 py-1 md:py-2 rounded-lg hover:bg-coral/20 transition-all font-semibold hover:scale-105 active:scale-95 min-w-[60px] md:min-w-[80px] flex-shrink-0"
+          type="button"
+          title={`Enviar: "${action.message}"`}
+        >
+          <span className="text-lg md:text-xl mb-1">{action.icon}</span>
+          <span className="text-[10px] md:text-xs leading-tight text-center">{action.label}</span>
+        </button>
+      ))}
+    </div>
+  );
+};
 
 export default QuickActionsBar;

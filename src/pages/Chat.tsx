@@ -5,6 +5,7 @@ import ChatInput from "@/components/ChatInput";
 import QuickActionsBar from "@/components/QuickActionsBar";
 import TypingIndicator from "@/components/TypingIndicator";
 import NavigationBar from "@/components/NavigationBar";
+import { ChatConfigProvider, useStyledResponse, type ConversationStyle } from "@/hooks/useChatConfig";
 import { useState } from "react";
 
 // Add type that matches the props for ChatMessageBubble
@@ -12,7 +13,7 @@ type DemoMessage = {
   id: number;
   sender: "user" | "lautaro";
   content: string;
-  mood?: "amable" | "picaro" | "tierno";
+  mood?: ConversationStyle | "picaro";
   time?: string;
 };
 
@@ -41,54 +42,10 @@ const DEMO_MESSAGES: DemoMessage[] = [
   },
 ];
 
-// Respuestas predefinidas de Lautaro
-const LAUTARO_RESPONSES = {
-  default: [
-    "¡Qué interesante lo que me contás! ¿Querés que profundicemos en eso? 😊",
-    "Me encanta cómo pensás. ¿Te gustaría que exploremos más sobre ese tema? 🤔",
-    "¡Qué buena onda! ¿Hay algo más en lo que pueda ayudarte? 😉",
-  ],
-  greeting: [
-    "¡Hola! ¿Cómo estás hoy? 😊",
-    "¡Qué bueno verte! ¿En qué puedo ayudarte? 🤵‍♂️",
-    "¡Hola! Estoy acá para lo que necesites 💫",
-  ],
-  mood: [
-    "¿Sabés qué? Tu sonrisa es contagiosa, incluso por chat 😊",
-    "Si fueras un color, serías el más brillante del arcoíris 🌈",
-    "¿Querés que te cuente un chiste? Siempre funciona para levantar el ánimo 😉",
-  ],
-};
-
-const getLautaroResponse = (message: string): { content: string; mood: "amable" | "picaro" | "tierno" } => {
-  const lowerMessage = message.toLowerCase();
-  
-  // Detectar saludos
-  if (lowerMessage.includes("hola") || lowerMessage.includes("buenas") || lowerMessage.includes("buen día")) {
-    return {
-      content: LAUTARO_RESPONSES.greeting[Math.floor(Math.random() * LAUTARO_RESPONSES.greeting.length)],
-      mood: "amable"
-    };
-  }
-  
-  // Detectar mensajes sobre el estado de ánimo
-  if (lowerMessage.includes("ánimo") || lowerMessage.includes("triste") || lowerMessage.includes("bajón")) {
-    return {
-      content: LAUTARO_RESPONSES.mood[Math.floor(Math.random() * LAUTARO_RESPONSES.mood.length)],
-      mood: "tierno"
-    };
-  }
-  
-  // Respuesta por defecto
-  return {
-    content: LAUTARO_RESPONSES.default[Math.floor(Math.random() * LAUTARO_RESPONSES.default.length)],
-    mood: "amable"
-  };
-};
-
-const Chat = () => {
+const ChatContent = () => {
   const [messages, setMessages] = useState(DEMO_MESSAGES);
   const [isTyping, setIsTyping] = useState(false);
+  const { generateResponse } = useStyledResponse();
 
   const handleSendMessage = (content: string) => {
     const newMessage: DemoMessage = {
@@ -100,9 +57,9 @@ const Chat = () => {
     setMessages(prev => [...prev, newMessage]);
     setIsTyping(true);
     
-    // Simular respuesta de Lautaro después de 1 segundo
+    // Simular respuesta de Lautaro después de 1 segundo usando el hook estilizado
     setTimeout(() => {
-      const { content: responseContent, mood } = getLautaroResponse(content);
+      const { content: responseContent, mood } = generateResponse(content);
       const lautaroResponse: DemoMessage = {
         id: messages.length + 2,
         sender: "lautaro",
@@ -142,7 +99,7 @@ const Chat = () => {
           </div>
 
           {/* Barra de acciones rápidas */}
-          <QuickActionsBar />
+          <QuickActionsBar onSendMessage={handleSendMessage} />
 
           {/* Input */}
           <ChatInput onSendMessage={handleSendMessage} isTyping={isTyping} />
@@ -155,6 +112,14 @@ const Chat = () => {
         </div>
       </div>
     </div>
+  );
+};
+
+const Chat = () => {
+  return (
+    <ChatConfigProvider>
+      <ChatContent />
+    </ChatConfigProvider>
   );
 };
 

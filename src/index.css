@@ -99,3 +99,51 @@
     @apply bg-sand text-vino font-quicksand;
   }
 }
+
+/* Estilos personalizados para el slider */
+@layer components {
+  .slider {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    border-radius: 6px;
+    outline: none;
+    transition: all 0.2s ease;
+  }
+
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #730C2E;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 6px rgba(115, 12, 46, 0.3);
+    transition: all 0.2s ease;
+  }
+
+  .slider::-webkit-slider-thumb:hover {
+    background: #5a0a23;
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(115, 12, 46, 0.4);
+  }
+
+  .slider::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #730C2E;
+    cursor: pointer;
+    border: 2px solid white;
+    box-shadow: 0 2px 6px rgba(115, 12, 46, 0.3);
+    transition: all 0.2s ease;
+  }
+
+  .slider::-moz-range-thumb:hover {
+    background: #5a0a23;
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(115, 12, 46, 0.4);
+  }
+}
