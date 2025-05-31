@@ -57,8 +57,10 @@ const SupabaseDashboard = () => {
   }, [isAuthenticated]);
 
   const loadSupabaseEvents = async () => {
+    if (!user?.id) return;
+    
     try {
-      const result = await supabaseLaubotService.getCalendarEvents(10);
+      const result = await supabaseLaubotService.getCalendarEvents(user.id, 10);
       if (result.success && result.events) {
         setSupabaseEvents(result.events);
       }
@@ -68,9 +70,11 @@ const SupabaseDashboard = () => {
   };
 
   const handleSync = async () => {
+    if (!user?.id) return;
+    
     setSyncLoading(true);
     try {
-      const result = await supabaseLaubotService.syncCalendarEvents();
+      const result = await supabaseLaubotService.syncCalendarEvents(user.id);
       if (result.success) {
         await loadSupabaseEvents();
         console.log('Sincronización exitosa');
@@ -83,6 +87,8 @@ const SupabaseDashboard = () => {
   };
 
   const handleCreateEvent = async () => {
+    if (!user?.id) return;
+    
     const sampleEvent = {
       summary: 'Evento desde Dashboard',
       description: 'Creado desde el dashboard integrado',
@@ -97,7 +103,7 @@ const SupabaseDashboard = () => {
       location: 'Dashboard virtual'
     };
 
-    const result = await supabaseLaubotService.createCalendarEvent(sampleEvent);
+    const result = await supabaseLaubotService.createCalendarEvent(user.id, sampleEvent);
     if (result.success) {
       await loadSupabaseEvents();
     }

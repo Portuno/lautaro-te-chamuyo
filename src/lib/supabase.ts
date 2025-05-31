@@ -2,13 +2,14 @@ import { createClient } from '@supabase/supabase-js';
 
 // Configuración de Supabase
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.replace(/\s+/g, ''); // Remove all whitespace and newlines
 
 // Verificar si las variables están configuradas
 const isSupabaseConfigured = supabaseUrl && supabaseAnonKey && 
   supabaseUrl !== 'your-supabase-url' && 
   supabaseAnonKey !== 'your-anon-key' &&
-  supabaseUrl.startsWith('https://');
+  supabaseUrl.startsWith('https://') &&
+  supabaseAnonKey.length > 100; // JWT tokens are typically much longer than 100 chars
 
 // Cliente de Supabase (solo si está configurado)
 export const supabase = isSupabaseConfigured 
@@ -24,18 +25,22 @@ export const supabase = isSupabaseConfigured
 // Mock client para desarrollo sin Supabase
 const createMockSupabaseClient = () => {
   const mockError = new Error('Supabase no configurado - usando mock');
+  const mockResponse = { data: null, error: mockError };
   
-  const createMockQueryBuilder = () => {
+  const createMockQueryBuilder = (): any => {
     const builder = {
       select: () => builder,
-      insert: async () => ({ data: null, error: mockError }),
-      update: async () => ({ data: null, error: mockError }),
-      delete: async () => ({ data: null, error: mockError }),
+      insert: () => builder,
+      update: () => builder,
+      delete: () => builder,
       eq: () => builder,
       order: () => builder,
       limit: () => builder,
-      upsert: async () => ({ data: null, error: mockError }),
-      single: async () => ({ data: null, error: mockError })
+      upsert: () => builder,
+      single: async () => mockResponse,
+      then: (resolve: any) => Promise.resolve(mockResponse).then(resolve),
+      catch: (reject: any) => Promise.resolve(mockResponse).catch(reject),
+      finally: (fn: any) => Promise.resolve(mockResponse).finally(fn)
     };
     return builder;
   };

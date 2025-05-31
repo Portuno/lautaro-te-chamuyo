@@ -19,7 +19,9 @@ export const useLaubot = () => {
 
     const unsubscribe = laubotInstance.subscribe(handleStateChange);
     
-    return unsubscribe;
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const authenticate = useCallback(async () => {

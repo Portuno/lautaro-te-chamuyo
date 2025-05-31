@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './hooks/useAuth';
+import DevEnvStatus from './components/DevEnvStatus';
 import Index from './pages/Index';
 import Chat from './pages/Chat';
 import Laboratorio from './pages/Laboratorio';
@@ -19,6 +20,7 @@ function App() {
             <Route path="/laubot" element={<LaubotDemo />} />
             <Route path="/dashboard" element={<SupabaseDashboard />} />
           </Routes>
+          <DevEnvStatus />
         </div>
       </Router>
     </AuthProvider>

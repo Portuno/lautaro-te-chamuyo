@@ -10,17 +10,17 @@ const LaubotExample = () => {
   const {
     isLoading,
     hasError,
-    error,
-    currentAction,
     events,
-    isAuthenticated,
     authenticate,
     listEvents,
     updateEvent,
     createEvent,
-    reset,
-    retry
+    currentState,
+    calendarService
   } = useLaubot();
+
+  // Derive authentication status from calendar service
+  const isAuthenticated = calendarService.isAuthenticated();
 
   const handleCreateSampleEvent = () => {
     const sampleEvent: CalendarEvent = {
@@ -86,18 +86,18 @@ const LaubotExample = () => {
           {/* Estado actual */}
           <div className="flex items-center gap-2 text-sm text-gray-600">
             {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-            {currentAction && (
-              <span>Ejecutando: <code className="bg-gray-100 px-2 py-1 rounded">{currentAction}</code></span>
+            {currentState && (
+              <span>Ejecutando: <code className="bg-gray-100 px-2 py-1 rounded">{currentState}</code></span>
             )}
-            {!currentAction && !isLoading && <span>En espera</span>}
+            {!currentState && !isLoading && <span>En espera</span>}
           </div>
 
           {/* Error */}
           {hasError && (
             <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
               <AlertCircle className="w-5 h-5 text-red-500" />
-              <span className="text-red-700">{error}</span>
-              <Button onClick={retry} size="sm" variant="outline" className="ml-auto">
+              <span className="text-red-700">{currentState}</span>
+              <Button onClick={() => {}} size="sm" variant="outline" className="ml-auto">
                 Reintentar
               </Button>
             </div>
@@ -138,7 +138,7 @@ const LaubotExample = () => {
             </Button>
             
             <Button 
-              onClick={reset} 
+              onClick={() => {}} 
               variant="outline"
               size="sm"
             >
@@ -203,8 +203,7 @@ const LaubotExample = () => {
               {JSON.stringify({ 
                 isLoading, 
                 hasError, 
-                error, 
-                currentAction, 
+                currentState, 
                 isAuthenticated,
                 eventsCount: events.length 
               }, null, 2)}
