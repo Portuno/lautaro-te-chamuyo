@@ -1,83 +1,205 @@
-
-import LautaroDemo from "@/components/LautaroDemo";
-import ExperiencePaths from "@/components/ExperiencePaths";
-import Testimonials from "@/components/Testimonials";
-import PricingPlans from "@/components/PricingPlans";
-import PageFooter from "@/components/PageFooter";
-import LautaroFeaturesSection from "@/components/LautaroFeaturesSection";
-import MomentoLautaro from "@/components/MomentoLautaro";
-import LaboratorioPreview from "@/components/LaboratorioPreview";
-import NavigationBar from "@/components/NavigationBar";
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import { MessageCircle, Calendar, Brain, Sparkles, ArrowRight, User, LogOut } from 'lucide-react';
+import AuthModal from '../components/AuthModal';
 
 const Index = () => {
+  const { isAuthenticated, user, profile, signOut } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authModalTab, setAuthModalTab] = useState<'login' | 'register'>('login');
+
+  const handleShowLogin = () => {
+    setAuthModalTab('login');
+    setShowAuthModal(true);
+  };
+
+  const handleShowRegister = () => {
+    setAuthModalTab('register');
+    setShowAuthModal(true);
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+  };
+
   return (
-    <div className="bg-sand min-h-screen flex flex-col">
-      {/* Navigation Bar */}
-      <NavigationBar />
-
-      {/* Hero - Encabezado */}
-      <section className="w-full bg-gradient-to-br from-terracota to-coral py-16 px-4 flex flex-col items-center justify-center shadow-md rounded-b-3xl animate-fade-in">
-        <h1 className="text-5xl md:text-6xl font-bold mb-6 text-beige drop-shadow font-quicksand text-center leading-tight" style={{letterSpacing: "-0.02em"}}>
-          "¿Ya te dijeron hoy lo increíble que sos?"
-        </h1>
-        <p className="text-xl text-beige mb-10 text-center max-w-xl">
-          Lautaro es tu asistente argentino: te ayuda, te chamuya y hace que cada día tenga un poco más de magia.
-        </p>
-        <a href="#demo" className="bg-vino hover:bg-terracota transition-colors px-8 py-4 mt-2 rounded-full text-beige text-lg font-semibold shadow-lg hover:scale-105 inline-block animate-fade-in font-quicksand">
-          Conocé a Lautaro
-        </a>
-        <a
-          href="/funciones"
-          className="mt-4 bg-coral hover:bg-vino text-vino hover:text-beige font-semibold px-8 py-3 rounded-full shadow-lg transition-colors font-quicksand text-lg"
-        >
-          Ver todas las funciones como asistente
-        </a>
-        <a
-          href="/chat"
-          className="mt-4 bg-vino hover:bg-coral text-beige hover:text-vino font-semibold px-8 py-3 rounded-full shadow-lg transition-colors font-quicksand text-lg"
-        >
-          Hablá con Lautaro
-        </a>
-      </section>
-
-      {/* Mini demo interactiva */}
-      <section id="demo" className="flex flex-col items-center py-16 px-4 bg-beige">
-        <h2 className="text-3xl font-bold text-vino mb-6">Probá un poco su magia</h2>
-        <LautaroDemo />
-      </section>
-
-      {/* NUEVA SECCIÓN: Funciones Clave */}
-      <LautaroFeaturesSection />
-
-      {/* Vista previa del Laboratorio de Chamuyo */}
-      <LaboratorioPreview />
-
-      {/* Dos caminos visuales */}
-      <section className="flex flex-col items-center py-14 px-4 bg-sand">
-        <ExperiencePaths />
-      </section>
-
-      {/* Testimonios */}
-      <section className="flex flex-col items-center py-14 px-4 bg-beige">
-        <Testimonials />
-      </section>
-
-      {/* Planes */}
-      <section className="flex flex-col items-center py-14 px-4 bg-sand">
-        <PricingPlans />
-
-        {/* Momento Lautaro antes del último CTA */}
-        <div className="w-full mt-10 mb-2 max-w-3xl">
-          <MomentoLautaro />
+    <div className="min-h-screen bg-gradient-to-br from-beige via-sand to-vino/10">
+      {/* Navigation */}
+      <nav className="container mx-auto px-6 py-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Sparkles className="w-8 h-8 text-vino" />
+            <span className="text-2xl font-bold text-vino font-quicksand">Laubot</span>
+          </div>
+          
+          <div className="flex items-center space-x-4">
+            {isAuthenticated ? (
+              <>
+                <span className="text-vino/70 text-sm">
+                  Hola, {profile?.full_name || user?.email?.split('@')[0]}!
+                </span>
+                <Link 
+                  to="/dashboard" 
+                  className="flex items-center px-4 py-2 text-vino hover:bg-vino/10 rounded-lg transition-colors"
+                >
+                  <User className="w-4 h-4 mr-2" />
+                  Perfil
+                </Link>
+                <Link 
+                  to="/chat" 
+                  className="px-6 py-2 bg-vino text-white rounded-lg hover:bg-vino/90 transition-colors"
+                >
+                  Chatear
+                </Link>
+                <button
+                  onClick={handleSignOut}
+                  className="flex items-center px-4 py-2 text-vino hover:bg-vino/10 rounded-lg transition-colors"
+                >
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Salir
+                </button>
+              </>
+            ) : (
+              <>
+                <Link 
+                  to="/chat" 
+                  className="px-4 py-2 text-vino hover:bg-vino/10 rounded-lg transition-colors"
+                >
+                  Probar Chat
+                </Link>
+                <button 
+                  onClick={handleShowLogin}
+                  className="px-4 py-2 text-vino hover:bg-vino/10 rounded-lg transition-colors"
+                >
+                  Iniciar Sesión
+                </button>
+                <button 
+                  onClick={handleShowRegister}
+                  className="px-6 py-2 bg-vino text-white rounded-lg hover:bg-vino/90 transition-colors"
+                >
+                  Registrarse
+                </button>
+              </>
+            )}
+          </div>
         </div>
+      </nav>
 
-        <a href="#planes" className="mt-8 bg-vino hover:bg-terracota transition-colors px-8 py-4 rounded-full text-beige text-lg font-semibold shadow-lg hover:scale-105 animate-fade-in font-quicksand">
-          Desbloqueá el modo Chamuyo Maestro
-        </a>
-      </section>
+      {/* Hero Section */}
+      <div className="container mx-auto px-6 py-20">
+        <div className="text-center max-w-4xl mx-auto">
+          <h1 className="text-5xl md:text-7xl font-bold text-vino mb-6 font-quicksand">
+            Tu Asistente Personal
+            <span className="block text-transparent bg-clip-text bg-gradient-to-r from-vino to-purple-600">
+              con Chamuyo Argentino
+            </span>
+          </h1>
+          
+          <p className="text-xl md:text-2xl text-vino/80 mb-8 leading-relaxed">
+            Laubot combina inteligencia artificial con el arte del chamuyo argentino 
+            para crear conversaciones auténticas y gestionar tu calendario con estilo.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link 
+              to="/chat"
+              className="inline-flex items-center px-8 py-4 bg-vino text-white rounded-xl hover:bg-vino/90 transition-all transform hover:scale-105 shadow-lg"
+            >
+              <MessageCircle className="w-5 h-5 mr-2" />
+              Comenzar a Chatear
+              <ArrowRight className="w-5 h-5 ml-2" />
+            </Link>
+            
+            <Link 
+              to="/chat"
+              className="inline-flex items-center px-8 py-4 border-2 border-vino text-vino rounded-xl hover:bg-vino hover:text-white transition-all"
+            >
+              <Brain className="w-5 h-5 mr-2" />
+              Chatear con Laubot
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Features Section */}
+      <div className="container mx-auto px-6 py-20">
+        <h2 className="text-3xl md:text-4xl font-bold text-vino text-center mb-16 font-quicksand">
+          ¿Qué hace especial a Laubot?
+        </h2>
+        
+        <div className="grid md:grid-cols-3 gap-8">
+          <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-8 hover:shadow-xl transition-all">
+            <MessageCircle className="w-12 h-12 text-vino mb-4" />
+            <h3 className="text-xl font-bold text-vino mb-4">Chamuyo Inteligente</h3>
+            <p className="text-vino/70">
+              Conversaciones naturales con el toque argentino que necesitás. 
+              Desde charlas casuales hasta negociaciones importantes.
+            </p>
+          </div>
+          
+          <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-8 hover:shadow-xl transition-all">
+            <Calendar className="w-12 h-12 text-vino mb-4" />
+            <h3 className="text-xl font-bold text-vino mb-4">Calendario Integrado</h3>
+            <p className="text-vino/70">
+              Gestión completa de tu agenda con sincronización con Google Calendar. 
+              Nunca más te olvides de una reunión importante.
+            </p>
+          </div>
+          
+          <div className="bg-white/50 backdrop-blur-sm rounded-2xl p-8 hover:shadow-xl transition-all">
+            <Brain className="w-12 h-12 text-vino mb-4" />
+            <h3 className="text-xl font-bold text-vino mb-4">IA Personalizada</h3>
+            <p className="text-vino/70">
+              Inteligencia artificial que aprende tu estilo y se adapta a tus necesidades. 
+              Cada conversación es única y auténtica.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* CTA Section */}
+      <div className="container mx-auto px-6 py-20">
+        <div className="bg-gradient-to-r from-vino to-purple-600 rounded-3xl p-12 text-center text-white">
+          <h2 className="text-3xl md:text-4xl font-bold mb-6 font-quicksand">
+            ¿Listo para comenzar?
+          </h2>
+          <p className="text-xl mb-8 opacity-90">
+            Descubrí el poder del chamuyo argentino combinado con tecnología de vanguardia
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link 
+              to="/chat"
+              className="inline-flex items-center px-8 py-4 bg-white text-vino rounded-xl hover:bg-gray-100 transition-all font-semibold"
+            >
+              Empezar Gratis
+            </Link>
+            
+            <Link 
+              to="/laboratorio"
+              className="inline-flex items-center px-8 py-4 border-2 border-white text-white rounded-xl hover:bg-white hover:text-vino transition-all"
+            >
+              Laboratorio de Chamuyo
+            </Link>
+          </div>
+        </div>
+      </div>
 
       {/* Footer */}
-      <PageFooter />
+      <footer className="container mx-auto px-6 py-8 border-t border-vino/20">
+        <div className="text-center text-vino/60">
+          <p>&copy; 2024 Laubot. Hecho con ❤️ en Argentina.</p>
+        </div>
+      </footer>
+
+      {showAuthModal && (
+        <AuthModal
+          isOpen={showAuthModal}
+          onClose={() => setShowAuthModal(false)}
+          defaultTab={authModalTab}
+        />
+      )}
     </div>
   );
 };
