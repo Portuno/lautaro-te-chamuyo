@@ -1,0 +1,72 @@
+{
+  "name": "Lautaro - Tu asistente con alma",
+  "short_name": "Lautaro",
+  "description": "Chat inteligente, laboratorio de chamuyo y tu compañero digital con personalidad única",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F5F1EB",
+  "theme_color": "#A0522D",
+  "orientation": "portrait-primary",
+  "categories": ["productivity", "social", "utilities"],
+  "lang": "es",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow"
+    },
+    {
+      "src": "/screenshot-desktop.png",
+      "sizes": "1920x1080",
+      "type": "image/png",
+      "form_factor": "wide"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Chat con Lautaro",
+      "short_name": "Chat",
+      "description": "Inicia una conversación con tu asistente",
+      "url": "/chat",
+      "icons": [
+        {
+          "src": "/logo.svg",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ]
+} 
