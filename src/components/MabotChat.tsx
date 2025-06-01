@@ -41,7 +41,6 @@ export function MabotChat() {
       const password = import.meta.env.VITE_MABOT_PASSWORD;
       
       if (!username || !password) {
-        console.log('Mabot credentials not found, using fallback mode');
         setUseFallback(true);
         setIsInitialized(true);
         return;
@@ -58,7 +57,6 @@ export function MabotChat() {
       setIsInitialized(true);
       setError(null);
     } catch (err) {
-      console.log('Failed to initialize Mabot client, using fallback mode');
       setUseFallback(true);
       setIsInitialized(true);
       setError(null);

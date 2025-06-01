@@ -1,9 +1,7 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './hooks/useAuth';
 import { useOnboarding } from './hooks/useOnboarding';
-import DevEnvStatus from './components/DevEnvStatus';
 import OnboardingFlow from './components/OnboardingFlow';
 import Index from './pages/Index';
 import Chat from './pages/Chat';
@@ -24,7 +22,6 @@ const AppContent = () => {
           <Route path="/laubot" element={<LaubotDemo />} />
           <Route path="/dashboard" element={<SupabaseDashboard />} />
         </Routes>
-        <DevEnvStatus />
       </div>
       
       {/* Onboarding overlay */}

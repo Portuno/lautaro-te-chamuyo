@@ -6,13 +6,6 @@ export const useOnboarding = () => {
   const [shouldShowOnboarding, setShouldShowOnboarding] = useState(false);
 
   useEffect(() => {
-    console.log('🔍 Onboarding check:', {
-      loading,
-      isAuthenticated,
-      profile,
-      onboarding_completed: profile?.onboarding_completed
-    });
-
     // Only check for onboarding if user is authenticated and not loading
     if (!loading && isAuthenticated) {
       // Show onboarding if:
@@ -22,7 +15,6 @@ export const useOnboarding = () => {
       const needsOnboarding = profile && 
         (profile.onboarding_completed === false || profile.onboarding_completed === undefined || profile.onboarding_completed === null);
       
-      console.log('✅ Needs onboarding:', needsOnboarding);
       setShouldShowOnboarding(!!needsOnboarding);
     } else {
       setShouldShowOnboarding(false);
@@ -30,7 +22,6 @@ export const useOnboarding = () => {
   }, [isAuthenticated, profile, loading]);
 
   const completeOnboarding = () => {
-    console.log('🎉 Completing onboarding...');
     setShouldShowOnboarding(false);
   };
 

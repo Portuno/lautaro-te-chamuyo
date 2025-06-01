@@ -33,11 +33,9 @@ export const useLaubot = () => {
       const result = await googleCalendarService.authenticate();
       
       if (result.authenticated) {
-        console.log('✅ Autenticación exitosa');
         // Enviar evento al bot
         laubotInstance.send({ type: 'AUTHENTICATE' });
       } else if (result.authUrl) {
-        console.log('🔗 URL de autenticación:', result.authUrl);
         // En un entorno real, redirigir a esta URL
         window.open(result.authUrl, '_blank');
       }

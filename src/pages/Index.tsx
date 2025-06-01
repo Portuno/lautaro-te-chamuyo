@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -32,16 +31,7 @@ const Index = () => {
 
   // Debug information
   React.useEffect(() => {
-    console.log('🧭 Navigation Debug:', {
-      isAuthenticated,
-      user: user?.email,
-      profile: profile?.preferred_name || profile?.full_name
-    });
-    
-    // TEST: Add an alert to verify changes are loading
-    console.log('🔥 TEST: Index.tsx loaded with changes!');
-    // Uncomment this line to test if changes are loading:
-    // alert('TEST: Changes are loading!');
+    // Clean up - no debug logs in production
   }, [isAuthenticated, user, profile]);
 
   return (

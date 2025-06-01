@@ -1,4 +1,3 @@
-
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { supabase } from '../integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
@@ -97,8 +96,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       async (event, session) => {
         if (!mounted) return;
 
-        console.log('Auth state changed:', event, session?.user?.email);
-
         if (session?.user) {
           setAuthState({
             user: session.user,
@@ -168,8 +165,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return { success: false, error: error.message };
       }
 
-      console.log('User created successfully:', data.user?.email);
-
       setAuthState(prev => ({ ...prev, loading: false }));
       return { success: true };
     } catch (error) {
@@ -201,7 +196,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     try {
-      console.log('Profile update requested:', updates);
       return { success: true };
     } catch (error) {
       return { 
