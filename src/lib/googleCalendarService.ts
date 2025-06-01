@@ -45,90 +45,10 @@ export class GoogleCalendarService {
   ].join(' ');
 
   constructor() {
-    // Secure OAuth2 Configuration with proper validation
-    this.clientId = this.validateAndGetClientId();
-    this.redirectUri = this.validateAndGetRedirectUri();
-    
-    // Security warning for development
-    if (import.meta.env.DEV) {
-      this.logSecurityWarnings();
-    }
-  }
-
-  /**
-   * Validates and retrieves Google Client ID with proper security checks
-   */
-  private validateAndGetClientId(): string {
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    
-    if (!clientId) {
-      const fallbackId = 'development-mock-client-id';
-      
-      if (import.meta.env.DEV) {
-        console.warn('⚠️ SECURITY WARNING: VITE_GOOGLE_CLIENT_ID not configured - using mock mode');
-      } else {
-        console.error('🚨 CRITICAL: VITE_GOOGLE_CLIENT_ID missing in production - Google Calendar disabled');
-        console.error('📋 Fix: Configure VITE_GOOGLE_CLIENT_ID in Vercel Environment Variables');
-      }
-      
-      return fallbackId;
-    }
-    
-    if (clientId === 'your-client-id') {
-      console.error('🔒 SECURITY ERROR: Default client ID detected - update VITE_GOOGLE_CLIENT_ID');
-      return 'development-mock-client-id';
-    }
-    
-    // Validate client ID format (Google client IDs end with .googleusercontent.com)
-    if (!import.meta.env.DEV && !clientId.includes('.googleusercontent.com')) {
-      console.warn('⚠️ WARNING: Client ID format may be invalid');
-    }
-    
-    return clientId;
-  }
-
-  /**
-   * Validates and retrieves redirect URI with security checks
-   */
-  private validateAndGetRedirectUri(): string {
-    const redirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URI;
-    const fallbackUri = import.meta.env.DEV ? 'http://localhost:8080/auth/callback' : 'https://placeholder-oauth-redirect.com/callback';
-    
-    if (!redirectUri) {
-      if (!import.meta.env.DEV) {
-        console.error('🚨 CRITICAL: VITE_GOOGLE_REDIRECT_URI missing in production');
-        console.error('📋 Fix: Configure VITE_GOOGLE_REDIRECT_URI in Vercel Environment Variables');
-      }
-      return fallbackUri;
-    }
-    
-    // Security check: production should use HTTPS
-    if (!import.meta.env.DEV && !redirectUri.startsWith('https://')) {
-      console.error('🔒 SECURITY ERROR: Production redirect URI must use HTTPS - using fallback');
-      return fallbackUri;
-    }
-    
-    return redirectUri;
-  }
-
-  /**
-   * Logs security warnings for development environment
-   */
-  private logSecurityWarnings(): void {
-    const warnings = [];
-    
-    if (!import.meta.env.VITE_GOOGLE_CLIENT_ID) {
-      warnings.push('VITE_GOOGLE_CLIENT_ID not configured');
-    }
-    
-    if (!import.meta.env.VITE_GOOGLE_REDIRECT_URI) {
-      warnings.push('VITE_GOOGLE_REDIRECT_URI not configured');
-    }
-    
-    if (warnings.length > 0) {
-      console.warn('🔒 Google OAuth Security Warnings:', warnings);
-      console.warn('📋 To fix: Create .env file with proper OAuth credentials');
-    }
+    // Simple configuration with silent fallbacks
+    this.clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'development-mock-client-id';
+    this.redirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URI || 
+      (import.meta.env.DEV ? 'http://localhost:8080/auth/callback' : 'https://placeholder-oauth-redirect.com/callback');
   }
 
   /**
@@ -136,13 +56,12 @@ export class GoogleCalendarService {
    */
   async authenticate(): Promise<any> {
     try {
-      // In development with missing credentials, use mock mode
-      if (import.meta.env.DEV && this.clientId === 'development-mock-client-id') {
-        console.log('🔑 Development mode - Using simulated authentication');
+      // Always use mock mode if no real client ID configured
+      if (this.clientId === 'development-mock-client-id') {
         this.accessToken = 'mock_access_token';
         return { 
           authenticated: true, 
-          message: 'Simulated authentication successful',
+          message: 'Using simulated authentication',
           mock: true 
         };
       }
@@ -157,11 +76,6 @@ export class GoogleCalendarService {
       };
     } catch (error) {
       console.error('Authentication error:', error);
-      
-      if (error instanceof Error && error.message.includes('CRITICAL')) {
-        throw error; // Re-throw critical configuration errors
-      }
-      
       throw new Error('Google authentication failed');
     }
   }
