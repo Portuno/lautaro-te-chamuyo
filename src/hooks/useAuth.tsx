@@ -1,4 +1,3 @@
-
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { supabase } from '../integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
@@ -11,14 +10,14 @@ interface UserProfile {
   bio?: string;
   website?: string;
   location?: string;
-  subscription_status: 'free' | 'premium';
+  subscription_status: string;
   chamuyo_level: number;
   total_points: number;
   onboarding_completed?: boolean;
   preferred_name?: string;
-  interaction_style?: 'confianza' | 'calma' | 'sorpresa';
+  interaction_style?: string;
   interests?: string[];
-  lautaro_mood?: 'amable' | 'picaro' | 'romantico' | 'poetico' | 'misterioso';
+  lautaro_mood?: string;
   created_at: string;
   updated_at: string;
 }
@@ -54,6 +53,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Función para cargar el perfil del usuario
   const loadUserProfile = async (userId: string): Promise<UserProfile | null> => {
     try {
+      console.log('🔍 Loading user profile for userId:', userId);
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
@@ -61,13 +61,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .single();
 
       if (error) {
-        console.error('Error loading user profile:', error);
+        console.error('❌ Error loading user profile:', error);
         return null;
       }
 
-      return data;
+      console.log('✅ User profile loaded:', data);
+      return data as UserProfile;
     } catch (error) {
-      console.error('Error loading user profile:', error);
+      console.error('❌ Error loading user profile:', error);
       return null;
     }
   };
@@ -78,12 +79,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Check initial session
     const checkInitialSession = async () => {
       try {
+        console.log('🔍 Checking initial session...');
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (!mounted) return;
 
         if (error) {
-          console.error('Error getting session:', error);
+          console.error('❌ Error getting session:', error);
           setAuthState(prev => ({ 
             ...prev, 
             loading: false, 
@@ -93,6 +95,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
 
         if (session?.user) {
+          console.log('✅ Session found, loading profile...');
           // Cargar el perfil del usuario
           const profile = await loadUserProfile(session.user.id);
           setAuthState({
@@ -102,11 +105,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             isAuthenticated: true
           });
         } else {
+          console.log('❌ No session found');
           setAuthState(prev => ({ ...prev, loading: false }));
         }
       } catch (error) {
         if (!mounted) return;
-        console.error('Error checking session:', error);
+        console.error('❌ Error checking session:', error);
         setAuthState(prev => ({ 
           ...prev, 
           loading: false, 
@@ -119,6 +123,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return;
+
+        console.log('🔄 Auth state changed:', event, session?.user?.id);
 
         if (session?.user) {
           // Cargar el perfil del usuario cuando se autentica
@@ -222,6 +228,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     try {
+      console.log('📝 Updating profile with:', updates);
       const { data, error } = await supabase
         .from('user_profiles')
         .update(updates)
@@ -230,18 +237,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .single();
 
       if (error) {
-        console.error('Error updating profile:', error);
+        console.error('❌ Error updating profile:', error);
         return { success: false, error: error.message };
       }
 
+      console.log('✅ Profile updated:', data);
       // Actualizar el estado local
       setAuthState(prev => ({
         ...prev,
-        profile: data
+        profile: data as UserProfile
       }));
 
       return { success: true };
     } catch (error) {
+      console.error('❌ Error updating profile:', error);
       return { 
         success: false, 
         error: error instanceof Error ? error.message : 'Error desconocido' 
