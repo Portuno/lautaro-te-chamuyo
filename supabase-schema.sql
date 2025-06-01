@@ -292,4 +292,46 @@ BEGIN
     RAISE NOTICE '🔄 Triggers set up for automatic timestamps';
     RAISE NOTICE '👤 Automatic user profile creation enabled';
     RAISE NOTICE '🔄 Script can be safely re-executed if needed';
-END $$; 
+END $$;
+
+-- CRITICAL SECURITY FIX: Add missing WITH CHECK clauses to INSERT policies
+
+-- Drop existing policies to recreate them with proper security
+DROP POLICY IF EXISTS "Users can insert their own profile" ON user_profiles;
+DROP POLICY IF EXISTS "Users can insert their own conversations" ON conversations;
+DROP POLICY IF EXISTS "Users can insert messages in their conversations" ON chat_messages;
+DROP POLICY IF EXISTS "Users can insert their own calendar events" ON calendar_events;
+DROP POLICY IF EXISTS "Users can insert their own bot sessions" ON bot_sessions;
+
+-- Recreate INSERT policies with proper WITH CHECK clauses
+CREATE POLICY "Users can insert their own profile" ON user_profiles
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own conversations" ON conversations
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert messages in their conversations" ON chat_messages
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (
+    auth.uid() = user_id AND
+    EXISTS (
+      SELECT 1 FROM conversations 
+      WHERE id = chat_messages.conversation_id 
+      AND user_id = auth.uid()
+    )
+  );
+
+CREATE POLICY "Users can insert their own calendar events" ON calendar_events
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own bot sessions" ON bot_sessions
+  FOR INSERT
+  TO authenticated
+  WITH CHECK (auth.uid() = user_id); 

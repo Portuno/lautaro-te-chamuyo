@@ -45,38 +45,117 @@ export class GoogleCalendarService {
   ].join(' ');
 
   constructor() {
-    // Configuración OAuth2 - estos valores deben venir de variables de entorno
-    this.clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || 'your-client-id';
-    this.redirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URI || 'http://localhost:8080/auth/callback';
+    // Secure OAuth2 Configuration with proper validation
+    this.clientId = this.validateAndGetClientId();
+    this.redirectUri = this.validateAndGetRedirectUri();
+    
+    // Security warning for development
+    if (import.meta.env.DEV) {
+      this.logSecurityWarnings();
+    }
   }
 
   /**
-   * Autentica al usuario con Google usando OAuth2
+   * Validates and retrieves Google Client ID with proper security checks
+   */
+  private validateAndGetClientId(): string {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    
+    if (!clientId) {
+      if (import.meta.env.DEV) {
+        console.warn('⚠️ SECURITY WARNING: VITE_GOOGLE_CLIENT_ID not configured - using mock mode');
+        return 'development-mock-client-id';
+      } else {
+        throw new Error('CRITICAL: VITE_GOOGLE_CLIENT_ID is required in production');
+      }
+    }
+    
+    if (clientId === 'your-client-id') {
+      throw new Error('SECURITY ERROR: Default client ID detected - update VITE_GOOGLE_CLIENT_ID');
+    }
+    
+    // Validate client ID format (Google client IDs end with .googleusercontent.com)
+    if (!import.meta.env.DEV && !clientId.includes('.googleusercontent.com')) {
+      console.warn('⚠️ WARNING: Client ID format may be invalid');
+    }
+    
+    return clientId;
+  }
+
+  /**
+   * Validates and retrieves redirect URI with security checks
+   */
+  private validateAndGetRedirectUri(): string {
+    const redirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URI;
+    
+    if (!redirectUri) {
+      if (import.meta.env.DEV) {
+        return 'http://localhost:8080/auth/callback';
+      } else {
+        throw new Error('CRITICAL: VITE_GOOGLE_REDIRECT_URI is required in production');
+      }
+    }
+    
+    // Security check: production should use HTTPS
+    if (!import.meta.env.DEV && !redirectUri.startsWith('https://')) {
+      throw new Error('SECURITY ERROR: Production redirect URI must use HTTPS');
+    }
+    
+    return redirectUri;
+  }
+
+  /**
+   * Logs security warnings for development environment
+   */
+  private logSecurityWarnings(): void {
+    const warnings = [];
+    
+    if (!import.meta.env.VITE_GOOGLE_CLIENT_ID) {
+      warnings.push('VITE_GOOGLE_CLIENT_ID not configured');
+    }
+    
+    if (!import.meta.env.VITE_GOOGLE_REDIRECT_URI) {
+      warnings.push('VITE_GOOGLE_REDIRECT_URI not configured');
+    }
+    
+    if (warnings.length > 0) {
+      console.warn('🔒 Google OAuth Security Warnings:', warnings);
+      console.warn('📋 To fix: Create .env file with proper OAuth credentials');
+    }
+  }
+
+  /**
+   * Enhanced authentication with better error handling
    */
   async authenticate(): Promise<any> {
     try {
-      // En desarrollo, retornamos datos mock
-      if (import.meta.env.DEV) {
-        console.log('🔑 Modo desarrollo - Usando autenticación simulada');
+      // In development with missing credentials, use mock mode
+      if (import.meta.env.DEV && this.clientId === 'development-mock-client-id') {
+        console.log('🔑 Development mode - Using simulated authentication');
         this.accessToken = 'mock_access_token';
         return { 
           authenticated: true, 
-          message: 'Autenticación simulada exitosa',
+          message: 'Simulated authentication successful',
           mock: true 
         };
       }
 
-      // En producción, generar URL de autenticación OAuth2
+      // In production or with proper credentials, generate OAuth URL
       const authUrl = this.generateAuthUrl();
       
       return { 
         authUrl, 
-        message: 'Redirigir a Google para autenticar',
+        message: 'Redirect to Google for authentication',
         authenticated: false 
       };
     } catch (error) {
-      console.error('Error en autenticación:', error);
-      throw new Error('Falló la autenticación con Google');
+      console.error('Authentication error:', error);
+      
+      if (error instanceof Error && error.message.includes('CRITICAL')) {
+        throw error; // Re-throw critical configuration errors
+      }
+      
+      throw new Error('Google authentication failed');
     }
   }
 
