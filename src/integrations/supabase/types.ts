@@ -9,12 +9,167 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      bot_sessions: {
+        Row: {
+          context: Json | null
+          created_at: string
+          error_message: string | null
+          google_credentials: Json | null
+          id: string
+          last_action: string | null
+          state: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          context?: Json | null
+          created_at?: string
+          error_message?: string | null
+          google_credentials?: Json | null
+          id?: string
+          last_action?: string | null
+          state?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          context?: Json | null
+          created_at?: string
+          error_message?: string | null
+          google_credentials?: Json | null
+          id?: string
+          last_action?: string | null
+          state?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      calendar_events: {
+        Row: {
+          all_day: boolean | null
+          created_at: string
+          description: string | null
+          end_time: string
+          google_event_id: string | null
+          id: string
+          location: string | null
+          start_time: string
+          status: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          all_day?: boolean | null
+          created_at?: string
+          description?: string | null
+          end_time: string
+          google_event_id?: string | null
+          id?: string
+          location?: string | null
+          start_time: string
+          status?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          all_day?: boolean | null
+          created_at?: string
+          description?: string | null
+          end_time?: string
+          google_event_id?: string | null
+          id?: string
+          location?: string | null
+          start_time?: string
+          status?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      chat_messages: {
+        Row: {
+          chamuyo_intensity: number | null
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          role: string
+          style: string | null
+          user_id: string
+        }
+        Insert: {
+          chamuyo_intensity?: number | null
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          role: string
+          style?: string | null
+          user_id: string
+        }
+        Update: {
+          chamuyo_intensity?: number | null
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          role?: string
+          style?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      conversations: {
+        Row: {
+          created_at: string
+          id: string
+          last_message_at: string
+          message_count: number | null
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          message_count?: number | null
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_message_at?: string
+          message_count?: number | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_profiles: {
         Row: {
           avatar_url: string | null
           bio: string | null
           chamuyo_level: number | null
-          created_at: string | null
+          created_at: string
           full_name: string | null
           id: string
           interaction_style: string | null
@@ -25,7 +180,7 @@ export type Database = {
           preferred_name: string | null
           subscription_status: string | null
           total_points: number | null
-          updated_at: string | null
+          updated_at: string
           user_id: string
           website: string | null
         }
@@ -33,7 +188,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           chamuyo_level?: number | null
-          created_at?: string | null
+          created_at?: string
           full_name?: string | null
           id?: string
           interaction_style?: string | null
@@ -44,7 +199,7 @@ export type Database = {
           preferred_name?: string | null
           subscription_status?: string | null
           total_points?: number | null
-          updated_at?: string | null
+          updated_at?: string
           user_id: string
           website?: string | null
         }
@@ -52,7 +207,7 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           chamuyo_level?: number | null
-          created_at?: string | null
+          created_at?: string
           full_name?: string | null
           id?: string
           interaction_style?: string | null
@@ -63,7 +218,7 @@ export type Database = {
           preferred_name?: string | null
           subscription_status?: string | null
           total_points?: number | null
-          updated_at?: string | null
+          updated_at?: string
           user_id?: string
           website?: string | null
         }
