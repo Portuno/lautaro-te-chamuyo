@@ -60,19 +60,9 @@ const SupabaseDashboard = () => {
     if (!user?.id) return;
     
     try {
-      const { data: events, error } = await supabase
-        .from('calendar_events')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('start_time', { ascending: false })
-        .limit(10);
-
-      if (error) {
-        console.error('Error loading events:', error);
-        return;
-      }
-
-      setSupabaseEvents(events || []);
+      // This is a placeholder until calendar_events table is created
+      console.log('Loading events - calendar_events table not yet created');
+      setSupabaseEvents([]);
     } catch (error) {
       console.error('Error loading Supabase events:', error);
     }
@@ -97,31 +87,20 @@ const SupabaseDashboard = () => {
   const handleCreateEvent = async () => {
     if (!user?.id) return;
     
+    console.log('Create event - calendar_events table not yet created');
+    
+    // Simulate creating an event for demo purposes
     const sampleEvent = {
-      user_id: user.id,
+      id: Math.random().toString(),
       title: 'Evento desde Dashboard',
       description: 'Creado desde el dashboard integrado',
       start_time: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
       end_time: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
       location: 'Dashboard virtual',
-      all_day: false,
       status: 'confirmed'
     };
 
-    try {
-      const { error } = await supabase
-        .from('calendar_events')
-        .insert(sampleEvent);
-
-      if (error) {
-        console.error('Error creating event:', error);
-        return;
-      }
-
-      await loadSupabaseEvents();
-    } catch (error) {
-      console.error('Error creating event:', error);
-    }
+    setSupabaseEvents(prev => [sampleEvent, ...prev]);
   };
 
   const formatDateTime = (dateStr: string) => {

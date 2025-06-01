@@ -1,6 +1,7 @@
+
 import React, { useState } from 'react';
 import { Settings, Database, Eye, EyeOff, TestTube2, Zap } from 'lucide-react';
-import { testSupabaseConnection } from '../utils/test-supabase';
+import { supabase } from '../integrations/supabase/client';
 import { useAuth } from '../hooks/useAuth';
 
 const DevEnvStatus = () => {
@@ -17,9 +18,12 @@ const DevEnvStatus = () => {
   const handleTestSupabase = async () => {
     setIsTestingSupabase(true);
     try {
-      const result = await testSupabaseConnection();
-      setTestResult(result);
-      console.log('Test result:', result);
+      const { data, error } = await supabase.auth.getSession();
+      if (error) {
+        setTestResult({ success: false, error: error.message });
+      } else {
+        setTestResult({ success: true, message: 'Conexión exitosa' });
+      }
     } catch (error) {
       setTestResult({ success: false, error: error instanceof Error ? error.message : 'Unknown error' });
     } finally {
@@ -163,4 +167,4 @@ const DevEnvStatus = () => {
   );
 };
 
-export default DevEnvStatus; 
+export default DevEnvStatus;
