@@ -1,6 +1,27 @@
+
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
-import { supabaseClient, isSupabaseReady, type UserProfile } from '../lib/supabase';
+import { supabase } from '../integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
+
+interface UserProfile {
+  id: string;
+  user_id: string;
+  full_name?: string;
+  avatar_url?: string;
+  bio?: string;
+  website?: string;
+  location?: string;
+  subscription_status: 'free' | 'premium';
+  chamuyo_level: number;
+  total_points: number;
+  onboarding_completed?: boolean;
+  preferred_name?: string;
+  interaction_style?: 'confianza' | 'calma' | 'sorpresa';
+  interests?: string[];
+  lautaro_mood?: 'amable' | 'picaro' | 'romantico' | 'poetico' | 'misterioso';
+  created_at: string;
+  updated_at: string;
+}
 
 interface AuthState {
   user: User | null;
@@ -30,23 +51,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
 
   useEffect(() => {
-    if (!isSupabaseReady) {
-      // Si Supabase no está configurado, mostrar error pero permitir navegación
-      setAuthState({
-        user: null,
-        profile: null,
-        loading: false,
-        isAuthenticated: false,
-        error: 'Configuración de base de datos pendiente. Algunas funciones pueden estar limitadas.'
-      });
-      return;
-    }
-
     // Verificar sesión inicial
     checkInitialSession();
 
     // Escuchar cambios de autenticación
-    const { data: { subscription } } = supabaseClient.auth.onAuthStateChange(
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (session?.user) {
           await loadUserProfile(session.user);
@@ -68,7 +77,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const checkInitialSession = async () => {
     try {
-      const { data: { session }, error } = await supabaseClient.auth.getSession();
+      const { data: { session }, error } = await supabase.auth.getSession();
       
       if (error) {
         setAuthState(prev => ({ 
@@ -96,7 +105,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const loadUserProfile = async (user: User) => {
     try {
-      const { data: profile, error } = await supabaseClient
+      const { data: profile, error } = await supabase
         .from('user_profiles')
         .select('*')
         .eq('user_id', user.id)
@@ -124,14 +133,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signIn = async (email: string, password: string) => {
-    if (!isSupabaseReady) {
-      return { success: false, error: 'Para usar la autenticación real, necesitás configurar las variables de entorno de Supabase. Podés usar el chat sin autenticarte.' };
-    }
-
     try {
       setAuthState(prev => ({ ...prev, loading: true, error: undefined }));
 
-      const { data, error } = await supabaseClient.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
@@ -152,14 +157,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signUp = async (email: string, password: string, fullName?: string) => {
-    if (!isSupabaseReady) {
-      return { success: false, error: 'Para registrarte, necesitás configurar las variables de entorno de Supabase. Podés usar el chat sin autenticarte.' };
-    }
-
     try {
       setAuthState(prev => ({ ...prev, loading: true, error: undefined }));
 
-      const { data, error } = await supabaseClient.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
@@ -177,7 +178,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Crear perfil de usuario con onboarding_completed = false
       if (data.user) {
         try {
-          const insertResult = await supabaseClient
+          const insertResult = await supabase
             .from('user_profiles')
             .insert({
               user_id: data.user.id,
@@ -185,7 +186,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               subscription_status: 'free',
               chamuyo_level: 1,
               total_points: 0,
-              onboarding_completed: false // Esto activará el onboarding
+              onboarding_completed: false
             });
 
           if (insertResult && 'error' in insertResult && insertResult.error) {
@@ -208,12 +209,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signOut = async () => {
-    if (!isSupabaseReady) {
-      return;
-    }
-
     try {
-      await supabaseClient.auth.signOut();
+      await supabase.auth.signOut();
       setAuthState({
         user: null,
         profile: null,
@@ -226,16 +223,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
-    if (!isSupabaseReady) {
-      return { success: false, error: 'Base de datos no configurada' };
-    }
-
     if (!authState.user) {
       return { success: false, error: 'Usuario no autenticado' };
     }
 
     try {
-      const { data, error } = await supabaseClient
+      const { data, error } = await supabase
         .from('user_profiles')
         .update(updates)
         .eq('user_id', authState.user.id)
@@ -261,12 +254,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const resetPassword = async (email: string) => {
-    if (!isSupabaseReady) {
-      return { success: false, error: 'Base de datos no configurada' };
-    }
-
     try {
-      const { data, error } = await supabaseClient.auth.resetPasswordForEmail(email);
+      const { data, error } = await supabase.auth.resetPasswordForEmail(email);
 
       if (error) {
         return { success: false, error: error.message };
@@ -308,4 +297,4 @@ export const useAuth = () => {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}; 
+};

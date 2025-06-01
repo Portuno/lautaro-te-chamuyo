@@ -1,8 +1,8 @@
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useLaubot } from '../hooks/useLaubot';
-import { supabaseLaubotService } from '../lib/supabaseLaubotService';
-import { GoogleCalendarService } from '../lib/googleCalendarService';
+import { supabase } from '../integrations/supabase/client';
 import AuthModal from '../components/AuthModal';
 import { Button } from '../components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
@@ -51,19 +51,28 @@ const SupabaseDashboard = () => {
 
   // Cargar eventos de Supabase cuando el usuario esté autenticado
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && user?.id) {
       loadSupabaseEvents();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, user?.id]);
 
   const loadSupabaseEvents = async () => {
     if (!user?.id) return;
     
     try {
-      const result = await supabaseLaubotService.getCalendarEvents(user.id, 10);
-      if (result.success && result.events) {
-        setSupabaseEvents(result.events);
+      const { data: events, error } = await supabase
+        .from('calendar_events')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('start_time', { ascending: false })
+        .limit(10);
+
+      if (error) {
+        console.error('Error loading events:', error);
+        return;
       }
+
+      setSupabaseEvents(events || []);
     } catch (error) {
       console.error('Error loading Supabase events:', error);
     }
@@ -74,11 +83,10 @@ const SupabaseDashboard = () => {
     
     setSyncLoading(true);
     try {
-      const result = await supabaseLaubotService.syncCalendarEvents(user.id);
-      if (result.success) {
-        await loadSupabaseEvents();
-        console.log('Sincronización exitosa');
-      }
+      // Aquí podrías implementar la lógica de sincronización
+      // Por ahora solo recargamos los eventos
+      await loadSupabaseEvents();
+      console.log('Sincronización exitosa');
     } catch (error) {
       console.error('Error syncing:', error);
     } finally {
@@ -90,22 +98,29 @@ const SupabaseDashboard = () => {
     if (!user?.id) return;
     
     const sampleEvent = {
-      summary: 'Evento desde Dashboard',
+      user_id: user.id,
+      title: 'Evento desde Dashboard',
       description: 'Creado desde el dashboard integrado',
-      start: {
-        dateTime: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
-        timeZone: 'America/Argentina/Buenos_Aires'
-      },
-      end: {
-        dateTime: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
-        timeZone: 'America/Argentina/Buenos_Aires'
-      },
-      location: 'Dashboard virtual'
+      start_time: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+      end_time: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+      location: 'Dashboard virtual',
+      all_day: false,
+      status: 'confirmed'
     };
 
-    const result = await supabaseLaubotService.createCalendarEvent(user.id, sampleEvent);
-    if (result.success) {
+    try {
+      const { error } = await supabase
+        .from('calendar_events')
+        .insert(sampleEvent);
+
+      if (error) {
+        console.error('Error creating event:', error);
+        return;
+      }
+
       await loadSupabaseEvents();
+    } catch (error) {
+      console.error('Error creating event:', error);
     }
   };
 
@@ -391,4 +406,4 @@ const SupabaseDashboard = () => {
   );
 };
 
-export default SupabaseDashboard; 
+export default SupabaseDashboard;
