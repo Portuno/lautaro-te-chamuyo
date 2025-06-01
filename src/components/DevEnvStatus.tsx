@@ -8,7 +8,19 @@ const DevEnvStatus = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [testResult, setTestResult] = useState<any>(null);
   const [isTestingSupabase, setIsTestingSupabase] = useState(false);
-  const { updateProfile, profile } = useAuth();
+  
+  // Try to get auth context, but handle the case where it might not be available
+  let updateProfile: any = null;
+  let profile: any = null;
+  
+  try {
+    const auth = useAuth();
+    updateProfile = auth.updateProfile;
+    profile = auth.profile;
+  } catch (error) {
+    // Auth context not available yet - this is fine, just don't show auth-related features
+    console.log('Auth context not available in DevEnvStatus:', error);
+  }
 
   // Solo mostrar en desarrollo
   if (import.meta.env.PROD) {
@@ -32,7 +44,7 @@ const DevEnvStatus = () => {
   };
 
   const handleResetOnboarding = async () => {
-    if (profile) {
+    if (profile && updateProfile) {
       try {
         await updateProfile({ onboarding_completed: false });
         console.log('🔄 Onboarding reset - refresh page to see onboarding');
@@ -105,7 +117,7 @@ const DevEnvStatus = () => {
               {isTestingSupabase ? 'Testing...' : 'Test Supabase Connection'}
             </button>
 
-            {profile && (
+            {profile && updateProfile && (
               <button
                 onClick={handleResetOnboarding}
                 className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 text-sm"
@@ -149,7 +161,7 @@ const DevEnvStatus = () => {
             ))}
           </div>
 
-          {/* Profile info */}
+          {/* Profile info - only show if profile is available */}
           {profile && (
             <div className="mt-4 pt-4 border-t">
               <h4 className="text-sm font-medium text-gray-700 mb-2">User Profile:</h4>
