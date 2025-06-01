@@ -1,3 +1,4 @@
+
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { supabase } from '../integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
@@ -47,7 +48,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
     profile: null,
-    loading: false,
+    loading: true,
     isAuthenticated: false
   });
 
@@ -71,11 +72,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .single();
 
       if (error) {
+        console.log('❌ Error loading profile:', error);
         return null;
       }
 
       return data as UserProfile;
     } catch (error) {
+      console.log('❌ Exception loading profile:', error);
       return null;
     }
   };
@@ -83,65 +86,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let mounted = true;
 
-    // Handle OAuth redirect
-    const handleOAuthRedirect = async () => {
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      const access_token = hashParams.get('access_token');
-      const refresh_token = hashParams.get('refresh_token');
-      
-      if (access_token && refresh_token) {
-        console.log('🔄 OAuth redirect detected, processing tokens...');
-        
-        try {
-          // Set the session manually using the tokens
-          const { data, error } = await supabase.auth.setSession({
-            access_token,
-            refresh_token
-          });
-          
-          if (error) {
-            console.error('❌ Error setting session:', error);
-            setAuthState(prev => ({ 
-              ...prev, 
-              loading: false, 
-              error: 'Error procesando autenticación OAuth' 
-            }));
-          } else if (data.session?.user) {
-            console.log('✅ OAuth session established successfully');
-            // Load user profile
-            const profile = await loadUserProfile(data.session.user.id);
-            setAuthState({
-              user: data.session.user,
-              profile,
-              loading: false,
-              isAuthenticated: true
-            });
-          }
-        } catch (error) {
-          console.error('❌ OAuth processing error:', error);
-          setAuthState(prev => ({ 
-            ...prev, 
-            loading: false, 
-            error: 'Error procesando autenticación OAuth' 
-          }));
-        }
-        
-        // Clean the URL
-        window.history.replaceState({}, document.title, window.location.pathname);
-        return true; // Indicate that OAuth was processed
-      }
-      
-      return false; // No OAuth tokens found
-    };
-
     // Check initial session
     const checkInitialSession = async () => {
       try {
-        // Handle OAuth redirect first
-        const oauthProcessed = await handleOAuthRedirect();
-        
-        if (oauthProcessed) return;
-        
         console.log('🔍 Starting initial session check...');
         const { data: { session }, error } = await supabase.auth.getSession();
         
@@ -187,6 +134,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return;
+
+        console.log('🔄 Auth state change event:', event, session?.user?.id);
 
         if (session?.user) {
           // Cargar el perfil del usuario cuando se autentica
@@ -300,30 +249,45 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setAuthState(prev => ({ ...prev, loading: true, error: undefined }));
 
-      // Detect if we're in development or production
-      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      const redirectUrl = isLocalhost 
-        ? 'http://localhost:8080/' 
-        : `${window.location.origin}${window.location.pathname}`;
+      // Mejorar la detección del entorno y URL de redirección
+      const currentUrl = window.location.origin;
+      const isLocalDev = currentUrl.includes('localhost') || currentUrl.includes('127.0.0.1');
       
-      console.log('🔗 Google OAuth redirect URL:', redirectUrl);
-      console.log('🌍 Environment:', isLocalhost ? 'Development' : 'Production');
+      // Para desarrollo local, usar una URL específica
+      // Para producción, usar la URL actual
+      const redirectUrl = isLocalDev 
+        ? `${currentUrl}/` 
+        : `${currentUrl}/`;
+      
+      console.log('🔗 Google OAuth configuration:', {
+        currentUrl,
+        isLocalDev,
+        redirectUrl,
+        environment: isLocalDev ? 'Development' : 'Production'
+      });
 
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: redirectUrl
+          redirectTo: redirectUrl,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
         }
       });
 
       if (error) {
+        console.log('❌ Google OAuth error:', error);
         setAuthState(prev => ({ ...prev, loading: false }));
         return { success: false, error: error.message };
       }
 
-      // OAuth redirect will handle the rest
+      console.log('✅ Google OAuth initiated successfully');
+      // OAuth redirect will handle the rest, don't set loading to false here
       return { success: true };
     } catch (error) {
+      console.log('❌ Google OAuth exception:', error);
       setAuthState(prev => ({ ...prev, loading: false }));
       return { 
         success: false, 
@@ -334,6 +298,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signOut = async () => {
     try {
+      console.log('🚪 Signing out...');
       await supabase.auth.signOut();
       setAuthState({
         user: null,
