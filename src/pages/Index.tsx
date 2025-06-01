@@ -1,10 +1,10 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { MessageCircle, Calendar, Brain, Sparkles, ArrowRight, User, LogOut, Menu, X } from 'lucide-react';
 import AuthModal from '../components/AuthModal';
 import PersonalizedWelcome from '../components/PersonalizedWelcome';
-import DebugInfo from '../components/DebugInfo';
 
 const Index = () => {
   const { isAuthenticated, user, profile, signOut } = useAuth();
@@ -46,9 +46,6 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-beige via-sand to-vino/10">
-      {/* Debug Info - Only in development */}
-      <DebugInfo />
-      
       {/* Navigation - Always visible */}
       <nav className="container mx-auto px-4 sm:px-6 py-4">
         <div className="flex items-center justify-between">
