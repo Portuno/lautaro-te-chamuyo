@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useAuth } from './useAuth';
 
@@ -6,15 +7,23 @@ export const useOnboarding = () => {
   const [shouldShowOnboarding, setShouldShowOnboarding] = useState(false);
 
   useEffect(() => {
-    // Only check for onboarding if user is authenticated and not loading
+    console.log('🔍 Checking onboarding status:', { 
+      loading, 
+      isAuthenticated, 
+      profile,
+      onboarding_completed: profile?.onboarding_completed 
+    });
+
+    // Solo verificar onboarding si el usuario está autenticado y no está cargando
     if (!loading && isAuthenticated) {
-      // Show onboarding if:
-      // 1. User is authenticated
-      // 2. Profile exists (to avoid showing onboarding before profile is loaded)
-      // 3. Onboarding is not completed OR onboarding_completed field doesn't exist
+      // Mostrar onboarding si:
+      // 1. Usuario está autenticado
+      // 2. El perfil existe (para evitar mostrar onboarding antes de que se cargue el perfil)
+      // 3. El onboarding no está completado
       const needsOnboarding = profile && 
         (profile.onboarding_completed === false || profile.onboarding_completed === undefined || profile.onboarding_completed === null);
       
+      console.log('📋 Needs onboarding:', needsOnboarding);
       setShouldShowOnboarding(!!needsOnboarding);
     } else {
       setShouldShowOnboarding(false);
@@ -22,6 +31,7 @@ export const useOnboarding = () => {
   }, [isAuthenticated, profile, loading]);
 
   const completeOnboarding = () => {
+    console.log('✅ Completing onboarding');
     setShouldShowOnboarding(false);
   };
 
@@ -30,4 +40,4 @@ export const useOnboarding = () => {
     completeOnboarding,
     isOnboardingReady: !loading && isAuthenticated
   };
-}; 
+};

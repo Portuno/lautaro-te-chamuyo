@@ -1,3 +1,4 @@
+
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import { supabase } from '../integrations/supabase/client';
 import type { User } from '@supabase/supabase-js';
@@ -50,6 +51,27 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     isAuthenticated: false
   });
 
+  // Función para cargar el perfil del usuario
+  const loadUserProfile = async (userId: string): Promise<UserProfile | null> => {
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (error) {
+        console.error('Error loading user profile:', error);
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Error loading user profile:', error);
+      return null;
+    }
+  };
+
   useEffect(() => {
     let mounted = true;
 
@@ -71,9 +93,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         }
 
         if (session?.user) {
+          // Cargar el perfil del usuario
+          const profile = await loadUserProfile(session.user.id);
           setAuthState({
             user: session.user,
-            profile: null,
+            profile,
             loading: false,
             isAuthenticated: true
           });
@@ -97,9 +121,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (!mounted) return;
 
         if (session?.user) {
+          // Cargar el perfil del usuario cuando se autentica
+          const profile = await loadUserProfile(session.user.id);
           setAuthState({
             user: session.user,
-            profile: null,
+            profile,
             loading: false,
             isAuthenticated: true
           });
@@ -196,6 +222,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .update(updates)
+        .eq('user_id', authState.user.id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating profile:', error);
+        return { success: false, error: error.message };
+      }
+
+      // Actualizar el estado local
+      setAuthState(prev => ({
+        ...prev,
+        profile: data
+      }));
+
       return { success: true };
     } catch (error) {
       return { 

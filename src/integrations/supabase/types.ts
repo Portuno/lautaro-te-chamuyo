@@ -9,7 +9,66 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      user_profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          chamuyo_level: number | null
+          created_at: string | null
+          full_name: string | null
+          id: string
+          interaction_style: string | null
+          interests: string[] | null
+          lautaro_mood: string | null
+          location: string | null
+          onboarding_completed: boolean | null
+          preferred_name: string | null
+          subscription_status: string | null
+          total_points: number | null
+          updated_at: string | null
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          chamuyo_level?: number | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string
+          interaction_style?: string | null
+          interests?: string[] | null
+          lautaro_mood?: string | null
+          location?: string | null
+          onboarding_completed?: boolean | null
+          preferred_name?: string | null
+          subscription_status?: string | null
+          total_points?: number | null
+          updated_at?: string | null
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          chamuyo_level?: number | null
+          created_at?: string | null
+          full_name?: string | null
+          id?: string
+          interaction_style?: string | null
+          interests?: string[] | null
+          lautaro_mood?: string | null
+          location?: string | null
+          onboarding_completed?: boolean | null
+          preferred_name?: string | null
+          subscription_status?: string | null
+          total_points?: number | null
+          updated_at?: string | null
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
