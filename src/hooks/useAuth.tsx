@@ -276,9 +276,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setAuthState(prev => ({ ...prev, loading: true, error: undefined }));
 
-      // Use the correct development server port
-      const redirectUrl = 'http://localhost:8080/';
+      // Detect if we're in development or production
+      const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      const redirectUrl = isLocalhost 
+        ? 'http://localhost:8080/' 
+        : `${window.location.origin}${window.location.pathname}`;
+      
       console.log('🔗 Google OAuth redirect URL:', redirectUrl);
+      console.log('🌍 Environment:', isLocalhost ? 'Development' : 'Production');
 
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
