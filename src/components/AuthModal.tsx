@@ -49,17 +49,40 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultTab = 'lo
 
   // Check if form is valid
   const isFormValid = () => {
+    const emailValid = formData.email.trim() !== '';
+    const passwordValid = formData.password.trim() !== '';
+    
     if (activeTab === 'login') {
-      return formData.email.trim() !== '' && formData.password.trim() !== '';
+      const result = emailValid && passwordValid;
+      console.log('🔍 Login Form Validation:', {
+        email: formData.email,
+        emailValid,
+        password: formData.password ? '***filled***' : 'empty',
+        passwordValid,
+        result,
+        loading
+      });
+      return result;
     } else {
-      return (
-        formData.email.trim() !== '' &&
-        formData.password.trim() !== '' &&
-        formData.fullName.trim() !== '' &&
-        formData.confirmPassword.trim() !== '' &&
-        formData.password === formData.confirmPassword &&
-        formData.password.length >= 6
-      );
+      const fullNameValid = formData.fullName.trim() !== '';
+      const confirmPasswordValid = formData.confirmPassword.trim() !== '';
+      const passwordsMatch = formData.password === formData.confirmPassword;
+      const passwordLengthOk = formData.password.length >= 6;
+      
+      const result = emailValid && passwordValid && fullNameValid && 
+        confirmPasswordValid && passwordsMatch && passwordLengthOk;
+      
+      console.log('🔍 Register Form Validation:', {
+        emailValid,
+        passwordValid,
+        fullNameValid,
+        confirmPasswordValid,
+        passwordsMatch,
+        passwordLengthOk,
+        result,
+        loading
+      });
+      return result;
     }
   };
 
@@ -345,6 +368,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultTab = 'lo
                   type="submit"
                   disabled={loading || !isFormValid()}
                   className="w-full bg-vino text-white py-3 px-4 rounded-lg font-medium hover:bg-vino/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed active:bg-vino/80"
+                  onClick={() => {
+                    console.log('🔘 Button clicked! Disabled state:', loading || !isFormValid(), {
+                      loading,
+                      isFormValid: isFormValid(),
+                      formData
+                    });
+                  }}
                 >
                   {loading 
                     ? (activeTab === 'login' ? 'Iniciando sesión...' : 'Registrando...') 

@@ -46,14 +46,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [authState, setAuthState] = useState<AuthState>({
     user: null,
     profile: null,
-    loading: true,
+    loading: false,
     isAuthenticated: false
   });
+
+  // Debug logging for loading state changes
+  useEffect(() => {
+    console.log('🔄 Auth state changed:', {
+      loading: authState.loading,
+      isAuthenticated: authState.isAuthenticated,
+      hasUser: !!authState.user,
+      hasProfile: !!authState.profile
+    });
+  }, [authState.loading, authState.isAuthenticated, authState.user, authState.profile]);
 
   // Función para cargar el perfil del usuario
   const loadUserProfile = async (userId: string): Promise<UserProfile | null> => {
     try {
-      console.log('🔍 Loading user profile for userId:', userId);
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
@@ -61,14 +70,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .single();
 
       if (error) {
-        console.error('❌ Error loading user profile:', error);
         return null;
       }
 
-      console.log('✅ User profile loaded:', data);
       return data as UserProfile;
     } catch (error) {
-      console.error('❌ Error loading user profile:', error);
       return null;
     }
   };
@@ -79,13 +85,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Check initial session
     const checkInitialSession = async () => {
       try {
-        console.log('🔍 Checking initial session...');
+        console.log('🔍 Starting initial session check...');
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (!mounted) return;
 
         if (error) {
-          console.error('❌ Error getting session:', error);
+          console.log('❌ Session check error:', error);
           setAuthState(prev => ({ 
             ...prev, 
             loading: false, 
@@ -98,6 +104,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           console.log('✅ Session found, loading profile...');
           // Cargar el perfil del usuario
           const profile = await loadUserProfile(session.user.id);
+          console.log('✅ Profile loaded, updating state...');
           setAuthState({
             user: session.user,
             profile,
@@ -105,12 +112,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             isAuthenticated: true
           });
         } else {
-          console.log('❌ No session found');
+          console.log('❌ No session found, setting loading to false');
           setAuthState(prev => ({ ...prev, loading: false }));
         }
       } catch (error) {
         if (!mounted) return;
-        console.error('❌ Error checking session:', error);
+        console.log('❌ Error in session check:', error);
         setAuthState(prev => ({ 
           ...prev, 
           loading: false, 
@@ -123,8 +130,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!mounted) return;
-
-        console.log('🔄 Auth state changed:', event, session?.user?.id);
 
         if (session?.user) {
           // Cargar el perfil del usuario cuando se autentica
@@ -168,6 +173,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return { success: false, error: error.message };
       }
 
+      // Reset loading state on success - the auth state change listener will handle the rest
+      setAuthState(prev => ({ ...prev, loading: false }));
       return { success: true };
     } catch (error) {
       setAuthState(prev => ({ ...prev, loading: false }));
@@ -228,7 +235,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     try {
-      console.log('📝 Updating profile with:', updates);
       const { data, error } = await supabase
         .from('user_profiles')
         .update(updates)
@@ -237,11 +243,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .single();
 
       if (error) {
-        console.error('❌ Error updating profile:', error);
         return { success: false, error: error.message };
       }
 
-      console.log('✅ Profile updated:', data);
       // Actualizar el estado local
       setAuthState(prev => ({
         ...prev,
@@ -250,7 +254,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       return { success: true };
     } catch (error) {
-      console.error('❌ Error updating profile:', error);
       return { 
         success: false, 
         error: error instanceof Error ? error.message : 'Error desconocido' 

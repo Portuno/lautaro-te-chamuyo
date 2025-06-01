@@ -62,7 +62,6 @@ export const useLaubot = () => {
       });
       
       setEvents(eventsList);
-      console.log('📅 Eventos obtenidos:', eventsList.length);
       
       // Enviar evento al bot
       laubotInstance.send({ type: 'LIST_EVENTS' });
@@ -86,7 +85,6 @@ export const useLaubot = () => {
       
       // Actualizar la lista de eventos
       setEvents(prev => [...prev, newEvent]);
-      console.log('✨ Evento creado:', newEvent);
       
       // Enviar evento al bot
       laubotInstance.send({ type: 'CREATE_EVENT', event: newEvent });
@@ -112,7 +110,6 @@ export const useLaubot = () => {
       setEvents(prev => prev.map(event => 
         event.id === eventId ? updatedEvent : event
       ));
-      console.log('📝 Evento actualizado:', updatedEvent);
       
       // Enviar evento al bot
       laubotInstance.send({ type: 'UPDATE_EVENT', eventId, updates });
