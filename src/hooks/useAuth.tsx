@@ -218,22 +218,46 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const signIn = async (email: string, password: string) => {
     try {
+      console.log('🔑 Starting signIn process...', { email });
       setAuthState(prev => ({ ...prev, loading: true, error: undefined }));
 
+      console.log('📡 Making request to Supabase...');
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
 
+      console.log('🔑 SignIn response:', {
+        hasData: !!data,
+        hasUser: !!data?.user,
+        hasSession: !!data?.session,
+        error: error?.message,
+        errorName: error?.name,
+        errorStatus: error?.status
+      });
+
       if (error) {
+        console.log('❌ SignIn error details:', {
+          message: error.message,
+          name: error.name,
+          status: error.status,
+          details: error
+        });
         setAuthState(prev => ({ ...prev, loading: false }));
         return { success: false, error: error.message };
       }
 
+      console.log('✅ SignIn successful, setting loading to false');
       // Reset loading state on success - the auth state change listener will handle the rest
       setAuthState(prev => ({ ...prev, loading: false }));
       return { success: true };
     } catch (error) {
+      console.log('❌ SignIn catch error details:', {
+        error,
+        message: error instanceof Error ? error.message : 'Unknown error',
+        name: error instanceof Error ? error.name : 'Unknown',
+        stack: error instanceof Error ? error.stack : 'No stack'
+      });
       setAuthState(prev => ({ ...prev, loading: false }));
       return { 
         success: false, 

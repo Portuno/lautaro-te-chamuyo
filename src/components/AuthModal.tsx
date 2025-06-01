@@ -91,7 +91,18 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultTab = 'lo
     setLocalError('');
     setSuccessMessage('');
 
+    console.log('📝 Form submitted:', {
+      activeTab,
+      formData: {
+        email: formData.email,
+        password: formData.password ? '***filled***' : 'empty',
+        fullName: formData.fullName || 'not provided'
+      },
+      isFormValid: isFormValid()
+    });
+
     if (!isFormValid()) {
+      console.log('❌ Form validation failed');
       if (activeTab === 'register') {
         if (formData.password !== formData.confirmPassword) {
           setLocalError('Las contraseñas no coinciden');
@@ -106,26 +117,37 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultTab = 'lo
     }
 
     try {
+      console.log('🚀 Calling auth function...');
       let result;
       if (activeTab === 'login') {
+        console.log('🔑 Calling signIn...');
         result = await signIn(formData.email, formData.password);
+        console.log('🔑 SignIn result:', result);
       } else {
+        console.log('📝 Calling signUp...');
         result = await signUp(formData.email, formData.password, formData.fullName);
+        console.log('📝 SignUp result:', result);
       }
 
+      console.log('📊 Auth result received:', result);
+
       if (result.success) {
+        console.log('✅ Auth successful');
         if (activeTab === 'register') {
           setSuccessMessage('¡Registro exitoso! Ahora podés iniciar sesión.');
           setActiveTab('login');
           setFormData(prev => ({ ...prev, fullName: '', confirmPassword: '' }));
         } else {
+          console.log('🚪 Closing modal after successful login');
           onClose();
           setFormData({ email: '', password: '', fullName: '', confirmPassword: '' });
         }
       } else {
+        console.log('❌ Auth failed:', result.error);
         setLocalError(result.error || 'Error desconocido');
       }
     } catch (error) {
+      console.log('❌ HandleSubmit catch error:', error);
       setLocalError('Error de conexión');
     }
   };
