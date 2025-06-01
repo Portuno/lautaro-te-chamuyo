@@ -8,6 +8,7 @@ import Chat from './pages/Chat';
 import Laboratorio from './pages/Laboratorio';
 import LaubotDemo from './pages/LaubotDemo';
 import SupabaseDashboard from './pages/SupabaseDashboard';
+import FuncionesAsistente from './pages/FuncionesAsistente';
 
 const AppContent = () => {
   const { shouldShowOnboarding, completeOnboarding } = useOnboarding();
@@ -21,6 +22,8 @@ const AppContent = () => {
           <Route path="/laboratorio" element={<Laboratorio />} />
           <Route path="/laubot" element={<LaubotDemo />} />
           <Route path="/dashboard" element={<SupabaseDashboard />} />
+          <Route path="/funciones" element={<FuncionesAsistente />} />
+          <Route path="/perfil" element={<Index />} />
         </Routes>
       </div>
       

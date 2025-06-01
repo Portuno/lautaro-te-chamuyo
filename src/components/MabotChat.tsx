@@ -26,7 +26,7 @@ export function MabotChat() {
   const [client, setClient] = useState<AsyncMabotClient | null>(null);
   const [messages, setMessages] = useState<Message[]>([{
     sender: 'lautaro',
-    content: '¡Hola! Soy Lautaro 🤵‍♂️. ¿En qué te ayudo hoy?',
+    content: 'Buenas, soy Lautaro. Podés escribirme lo que quieras, o aprovechar y apretar algunas de las funciones rápidas de abajo!',
     time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   }]);
   const [chatId, setChatId] = useState<string | null>(null);
@@ -161,7 +161,7 @@ export function MabotChat() {
             ))}
             {isTyping && <TypingIndicator />}
           </div>
-          <QuickActionsBar />
+          <QuickActionsBar onSendMessage={handleSendMessage} />
           <ChatInput onSendMessage={handleSendMessage} isTyping={isTyping} />
           {error && (
             <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-lg">
