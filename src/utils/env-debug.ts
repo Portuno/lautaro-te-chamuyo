@@ -32,6 +32,11 @@ export const getMabotUsername = () => import.meta.env.VITE_MABOT_USERNAME;
 export const getMabotPassword = () => import.meta.env.VITE_MABOT_PASSWORD;
 export const getApiBaseUrl = () => import.meta.env.VITE_API_BASE_URL;
 
+// Auto-call on import in development
+if (import.meta.env.DEV) {
+  debugEnvVars();
+}
+
 // Make it available globally for console access
 if (typeof window !== 'undefined') {
   (window as any).debugEnvVars = debugEnvVars;

@@ -13,6 +13,14 @@ CREATE TABLE user_profiles (
   subscription_status TEXT DEFAULT 'free' CHECK (subscription_status IN ('free', 'premium')),
   chamuyo_level INTEGER DEFAULT 1,
   total_points INTEGER DEFAULT 0,
+  
+  -- Onboarding preferences
+  onboarding_completed BOOLEAN DEFAULT FALSE,
+  preferred_name TEXT,
+  interaction_style TEXT CHECK (interaction_style IN ('confianza', 'calma', 'sorpresa')),
+  interests TEXT[], -- Array of interest keys
+  lautaro_mood TEXT CHECK (lautaro_mood IN ('amable', 'picaro', 'romantico', 'poetico', 'misterioso')),
+  
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(user_id)
@@ -112,10 +120,11 @@ CREATE TRIGGER update_conversations_updated_at
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
-  INSERT INTO public.user_profiles (user_id, full_name)
+  INSERT INTO public.user_profiles (user_id, full_name, onboarding_completed)
   VALUES (
     NEW.id,
-    COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email)
+    COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email),
+    FALSE -- Asegurar que onboarding_completed sea FALSE para nuevos usuarios
   );
   RETURN NEW;
 END;

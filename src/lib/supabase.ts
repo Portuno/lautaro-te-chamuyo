@@ -4,12 +4,31 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.replace(/\s+/g, ''); // Remove all whitespace and newlines
 
+// Debug logging in development
+if (import.meta.env.DEV) {
+  console.log('🔧 Supabase Config Debug:', {
+    url: supabaseUrl ? `${supabaseUrl.slice(0, 30)}...` : 'undefined',
+    urlLength: supabaseUrl?.length || 0,
+    urlStartsWithHttps: supabaseUrl?.startsWith('https://'),
+    keyLength: supabaseAnonKey?.length || 0,
+    keyOver100: (supabaseAnonKey?.length || 0) > 100
+  });
+}
+
 // Verificar si las variables están configuradas
-const isSupabaseConfigured = supabaseUrl && supabaseAnonKey && 
+const isSupabaseConfigured = Boolean(
+  supabaseUrl && 
+  supabaseAnonKey && 
   supabaseUrl !== 'your-supabase-url' && 
   supabaseAnonKey !== 'your-anon-key' &&
   supabaseUrl.startsWith('https://') &&
-  supabaseAnonKey.length > 100; // JWT tokens are typically much longer than 100 chars
+  supabaseAnonKey.length > 100
+);
+
+// Debug result
+if (import.meta.env.DEV) {
+  console.log('🔧 Supabase Ready:', isSupabaseConfigured);
+}
 
 // Cliente de Supabase (solo si está configurado)
 export const supabase = isSupabaseConfigured 
@@ -86,6 +105,14 @@ export interface UserProfile {
   subscription_status: 'free' | 'premium';
   chamuyo_level: number;
   total_points: number;
+  
+  // Onboarding preferences
+  onboarding_completed?: boolean;
+  preferred_name?: string;
+  interaction_style?: 'confianza' | 'calma' | 'sorpresa';
+  interests?: string[]; // Array of selected interests
+  lautaro_mood?: 'amable' | 'picaro' | 'romantico' | 'poetico' | 'misterioso';
+  
   created_at: string;
   updated_at: string;
 }

@@ -1,132 +1,160 @@
 import React, { useState } from 'react';
-import { debugEnvVars } from '../utils/env-debug';
+import { Settings, Database, Eye, EyeOff, TestTube2, Zap } from 'lucide-react';
 import { testSupabaseConnection } from '../utils/test-supabase';
+import { useAuth } from '../hooks/useAuth';
 
-interface DevEnvStatusProps {
-  className?: string;
-}
-
-const DevEnvStatus: React.FC<DevEnvStatusProps> = ({ className = '' }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
+const DevEnvStatus = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [testResult, setTestResult] = useState<any>(null);
   const [isTestingSupabase, setIsTestingSupabase] = useState(false);
-  const [supabaseTestResult, setSupabaseTestResult] = useState<string | null>(null);
+  const { updateProfile, profile } = useAuth();
 
-  // Only show in development
+  // Solo mostrar en desarrollo
   if (import.meta.env.PROD) {
     return null;
   }
 
-  const envVars = {
-    VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL,
-    VITE_SUPABASE_ANON_KEY: import.meta.env.VITE_SUPABASE_ANON_KEY,
-    VITE_MABOT_USERNAME: import.meta.env.VITE_MABOT_USERNAME,
-    VITE_MABOT_PASSWORD: import.meta.env.VITE_MABOT_PASSWORD,
-    VITE_API_BASE_URL: import.meta.env.VITE_API_BASE_URL,
-  };
-
-  const handleToggle = () => {
-    setIsExpanded(!isExpanded);
-    if (!isExpanded) {
-      debugEnvVars();
-    }
-  };
-
   const handleTestSupabase = async () => {
     setIsTestingSupabase(true);
-    setSupabaseTestResult(null);
-    
     try {
       const result = await testSupabaseConnection();
-      setSupabaseTestResult(result.success ? '✅ Connection successful' : `❌ ${result.error}`);
+      setTestResult(result);
+      console.log('Test result:', result);
     } catch (error) {
-      setSupabaseTestResult(`❌ Test failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      setTestResult({ success: false, error: error instanceof Error ? error.message : 'Unknown error' });
     } finally {
       setIsTestingSupabase(false);
     }
   };
 
-  const missingVars = Object.entries(envVars).filter(([, value]) => !value);
-  const hasIssues = missingVars.length > 0;
+  const handleResetOnboarding = async () => {
+    if (profile) {
+      try {
+        await updateProfile({ onboarding_completed: false });
+        console.log('🔄 Onboarding reset - refresh page to see onboarding');
+        alert('Onboarding reseteado. Refresca la página para verlo.');
+      } catch (error) {
+        console.error('Error resetting onboarding:', error);
+        alert('Error reseteando onboarding. Ver consola.');
+      }
+    }
+  };
+
+  const envVars = [
+    { key: 'VITE_SUPABASE_URL', value: import.meta.env.VITE_SUPABASE_URL },
+    { key: 'VITE_SUPABASE_ANON_KEY', value: import.meta.env.VITE_SUPABASE_ANON_KEY },
+    { key: 'VITE_API_BASE_URL', value: import.meta.env.VITE_API_BASE_URL },
+    { key: 'VITE_MABOT_USERNAME', value: import.meta.env.VITE_MABOT_USERNAME },
+    { key: 'VITE_MABOT_PASSWORD', value: import.meta.env.VITE_MABOT_PASSWORD },
+  ];
+
+  const isSupabaseConfigured = envVars[0].value && envVars[1].value && 
+    envVars[0].value !== 'your-supabase-url' && 
+    envVars[1].value !== 'your-anon-key';
 
   return (
-    <div className={`fixed bottom-4 right-4 z-50 ${className}`}>
+    <div className="fixed bottom-4 right-4 z-50">
       <button
-        onClick={handleToggle}
-        className={`flex items-center gap-2 px-3 py-2 rounded-lg shadow-lg text-sm font-medium transition-colors ${
-          hasIssues 
-            ? 'bg-red-100 text-red-800 border border-red-300' 
-            : 'bg-green-100 text-green-800 border border-green-300'
-        } hover:opacity-80`}
-        aria-label="Environment Variables Status"
+        onClick={() => setIsVisible(!isVisible)}
+        className={`p-3 rounded-full shadow-lg transition-all duration-200 ${
+          isSupabaseConfigured 
+            ? 'bg-green-500 hover:bg-green-600' 
+            : 'bg-red-500 hover:bg-red-600'
+        } text-white`}
+        title={isSupabaseConfigured ? 'ENV configurado correctamente' : 'ENV no configurado'}
       >
-        <span className="text-xs">
-          {hasIssues ? '⚠️' : '✅'}
-        </span>
-        <span>ENV ({Object.keys(envVars).length - missingVars.length}/{Object.keys(envVars).length})</span>
+        <Settings className="w-5 h-5" />
       </button>
 
-      {isExpanded && (
-        <div className="absolute bottom-12 right-0 bg-white border border-gray-300 rounded-lg shadow-xl p-4 min-w-80 max-w-96">
+      {isVisible && (
+        <div className="absolute bottom-16 right-0 bg-white rounded-lg shadow-xl border p-4 w-80 max-h-96 overflow-y-auto">
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-gray-900">Environment Variables</h3>
+            <h3 className="font-semibold text-gray-800">Dev Environment</h3>
             <button
-              onClick={() => setIsExpanded(false)}
-              className="text-gray-500 hover:text-gray-700"
-              aria-label="Close"
+              onClick={() => setIsVisible(false)}
+              className="text-gray-400 hover:text-gray-600"
             >
-              ✕
+              <EyeOff className="w-4 h-4" />
             </button>
           </div>
-          
-          <div className="space-y-2 text-xs">
-            {Object.entries(envVars).map(([key, value]) => (
-              <div key={key} className="flex items-center justify-between">
-                <span className="font-mono text-gray-600">{key}:</span>
-                <span className={`${value ? 'text-green-600' : 'text-red-600'}`}>
-                  {value ? (
-                    key.includes('KEY') || key.includes('PASSWORD') ? 
-                      `${String(value).substring(0, 10)}...` : 
-                      String(value).length > 30 ? 
-                        `${String(value).substring(0, 30)}...` : 
-                        String(value)
-                  ) : (
-                    'NOT SET'
-                  )}
-                </span>
+
+          {/* Status general */}
+          <div className="mb-4">
+            <div className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
+              isSupabaseConfigured ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+            }`}>
+              <Database className="w-4 h-4" />
+              <span className="text-sm font-medium">
+                {isSupabaseConfigured ? 'Supabase OK' : 'Supabase no configurado'}
+              </span>
+            </div>
+          </div>
+
+          {/* Test buttons */}
+          <div className="space-y-2 mb-4">
+            <button
+              onClick={handleTestSupabase}
+              disabled={isTestingSupabase || !isSupabaseConfigured}
+              className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+            >
+              <TestTube2 className="w-4 h-4" />
+              {isTestingSupabase ? 'Testing...' : 'Test Supabase Connection'}
+            </button>
+
+            {profile && (
+              <button
+                onClick={handleResetOnboarding}
+                className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 text-sm"
+              >
+                <Zap className="w-4 h-4" />
+                Reset Onboarding
+              </button>
+            )}
+          </div>
+
+          {/* Test result */}
+          {testResult && (
+            <div className="mb-4">
+              <div className={`p-3 rounded-lg text-sm ${
+                testResult.success ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'
+              }`}>
+                <div className="font-medium mb-1">
+                  {testResult.success ? '✅ Conexión exitosa' : '❌ Error de conexión'}
+                </div>
+                {testResult.error && (
+                  <div className="text-xs opacity-75">{testResult.error}</div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Variables de entorno */}
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium text-gray-700 mb-2">Environment Variables:</h4>
+            {envVars.map((env) => (
+              <div key={env.key} className="text-xs">
+                <div className="font-mono font-medium text-gray-600">{env.key}</div>
+                <div className={`font-mono p-1 rounded truncate ${
+                  env.value && env.value !== 'undefined' 
+                    ? 'bg-green-50 text-green-700' 
+                    : 'bg-red-50 text-red-700'
+                }`}>
+                  {env.value || 'undefined'}
+                </div>
               </div>
             ))}
           </div>
-          
-          {missingVars.length > 0 && (
-            <div className="mt-3 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700">
-              <strong>Missing:</strong> {missingVars.map(([key]) => key).join(', ')}
-            </div>
-          )}
-          
-          <div className="mt-3 space-y-2">
-            <button
-              onClick={() => debugEnvVars()}
-              className="w-full px-3 py-1 bg-blue-100 text-blue-800 rounded text-xs hover:bg-blue-200 transition-colors"
-            >
-              Log to Console
-            </button>
-            
-            <button
-              onClick={handleTestSupabase}
-              disabled={isTestingSupabase}
-              className="w-full px-3 py-1 bg-purple-100 text-purple-800 rounded text-xs hover:bg-purple-200 transition-colors disabled:opacity-50"
-            >
-              {isTestingSupabase ? 'Testing Supabase...' : 'Test Supabase Connection'}
-            </button>
-          </div>
-          
-          {supabaseTestResult && (
-            <div className={`mt-2 p-2 rounded text-xs ${
-              supabaseTestResult.includes('✅') 
-                ? 'bg-green-50 border border-green-200 text-green-700' 
-                : 'bg-red-50 border border-red-200 text-red-700'
-            }`}>
-              {supabaseTestResult}
+
+          {/* Profile info */}
+          {profile && (
+            <div className="mt-4 pt-4 border-t">
+              <h4 className="text-sm font-medium text-gray-700 mb-2">User Profile:</h4>
+              <div className="text-xs space-y-1">
+                <div>Onboarding: {profile.onboarding_completed ? '✅ Completed' : '❌ Pending'}</div>
+                <div>Preferred Name: {profile.preferred_name || 'None'}</div>
+                <div>Interaction Style: {profile.interaction_style || 'None'}</div>
+                <div>Mood: {profile.lautaro_mood || 'None'}</div>
+              </div>
             </div>
           )}
         </div>

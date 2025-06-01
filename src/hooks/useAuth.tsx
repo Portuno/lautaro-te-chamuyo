@@ -174,7 +174,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return { success: false, error: error.message };
       }
 
-      // Crear perfil de usuario
+      // Crear perfil de usuario con onboarding_completed = false
       if (data.user) {
         try {
           const insertResult = await supabaseClient
@@ -184,7 +184,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               full_name: fullName,
               subscription_status: 'free',
               chamuyo_level: 1,
-              total_points: 0
+              total_points: 0,
+              onboarding_completed: false // Esto activará el onboarding
             });
 
           if (insertResult && 'error' in insertResult && insertResult.error) {

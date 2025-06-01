@@ -22,6 +22,22 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultTab = 'lo
   const [resetEmail, setResetEmail] = useState<string>('');
   const { signIn, signUp, resetPassword, loading } = useAuth();
 
+  React.useEffect(() => {
+    if (isOpen) {
+      setActiveTab(defaultTab);
+      setFormData({
+        email: '',
+        password: '',
+        fullName: '',
+        confirmPassword: ''
+      });
+      setLocalError('');
+      setSuccessMessage('');
+      setShowForgotPassword(false);
+      setResetEmail('');
+    }
+  }, [isOpen, defaultTab]);
+
   if (!isOpen) return null;
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -31,20 +47,39 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultTab = 'lo
     setSuccessMessage('');
   };
 
+  // Check if form is valid
+  const isFormValid = () => {
+    if (activeTab === 'login') {
+      return formData.email.trim() !== '' && formData.password.trim() !== '';
+    } else {
+      return (
+        formData.email.trim() !== '' &&
+        formData.password.trim() !== '' &&
+        formData.fullName.trim() !== '' &&
+        formData.confirmPassword.trim() !== '' &&
+        formData.password === formData.confirmPassword &&
+        formData.password.length >= 6
+      );
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLocalError('');
     setSuccessMessage('');
 
-    if (activeTab === 'register') {
-      if (formData.password !== formData.confirmPassword) {
-        setLocalError('Las contraseñas no coinciden');
-        return;
+    if (!isFormValid()) {
+      if (activeTab === 'register') {
+        if (formData.password !== formData.confirmPassword) {
+          setLocalError('Las contraseñas no coinciden');
+          return;
+        }
+        if (formData.password.length < 6) {
+          setLocalError('La contraseña debe tener al menos 6 caracteres');
+          return;
+        }
       }
-      if (formData.password.length < 6) {
-        setLocalError('La contraseña debe tener al menos 6 caracteres');
-        return;
-      }
+      return;
     }
 
     try {
@@ -105,10 +140,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultTab = 'lo
 
   return (
     <div 
-      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
       onClick={handleOverlayClick}
     >
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden relative z-[101]">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-2xl font-bold text-vino font-quicksand">
@@ -308,8 +343,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, defaultTab = 'lo
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  disabled={loading}
-                  className="w-full bg-vino text-white py-3 px-4 rounded-lg font-medium hover:bg-vino-dark transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={loading || !isFormValid()}
+                  className="w-full bg-vino text-white py-3 px-4 rounded-lg font-medium hover:bg-vino/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed active:bg-vino/80"
                 >
                   {loading 
                     ? (activeTab === 'login' ? 'Iniciando sesión...' : 'Registrando...') 

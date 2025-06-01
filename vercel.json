@@ -1,6 +1,30 @@
 {
   "buildCommand": "rm -rf node_modules package-lock.json && npm install && npm run build",
+  "headers": [
+    {
+      "source": "/assets/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/(.*\\.(js|mjs|jsx|ts|tsx))",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "application/javascript; charset=utf-8"
+        }
+      ]
+    }
+  ],
   "rewrites": [
+    {
+      "source": "/assets/(.*)",
+      "destination": "/assets/$1"
+    },
     {
       "source": "/(.*)",
       "destination": "/index.html"

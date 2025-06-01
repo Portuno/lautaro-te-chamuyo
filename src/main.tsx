@@ -2,6 +2,15 @@ import { createRoot } from 'react-dom/client'
 import App from './App.tsx'
 import './index.css'
 
+// Debug: Test if main.tsx is loading and log env vars immediately
+console.log('🚀 Main.tsx loading...');
+console.log('🔍 DIRECT ENV CHECK:', {
+  VITE_SUPABASE_URL: import.meta.env.VITE_SUPABASE_URL,
+  VITE_SUPABASE_ANON_KEY_length: import.meta.env.VITE_SUPABASE_ANON_KEY?.length,
+  DEV: import.meta.env.DEV,
+  PROD: import.meta.env.PROD
+});
+
 // Import debug utility for environment variables
 import './utils/env-debug';
 
