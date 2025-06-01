@@ -31,8 +31,6 @@ export default defineConfig(({ mode }) => ({
   },
   base: mode === 'production' ? '/' : '/',
   optimizeDeps: {
-    force: true,
-    include: ['rollup'],
+    exclude: ['@swc/core'],
   },
-  clearScreen: false,
 }));
