@@ -84,23 +84,63 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     let mounted = true;
 
     // Handle OAuth redirect
-    const handleOAuthRedirect = () => {
+    const handleOAuthRedirect = async () => {
       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const access_token = hashParams.get('access_token');
       const refresh_token = hashParams.get('refresh_token');
       
-      if (access_token) {
-        console.log('🔄 OAuth redirect detected, cleaning URL...');
+      if (access_token && refresh_token) {
+        console.log('🔄 OAuth redirect detected, processing tokens...');
+        
+        try {
+          // Set the session manually using the tokens
+          const { data, error } = await supabase.auth.setSession({
+            access_token,
+            refresh_token
+          });
+          
+          if (error) {
+            console.error('❌ Error setting session:', error);
+            setAuthState(prev => ({ 
+              ...prev, 
+              loading: false, 
+              error: 'Error procesando autenticación OAuth' 
+            }));
+          } else if (data.session?.user) {
+            console.log('✅ OAuth session established successfully');
+            // Load user profile
+            const profile = await loadUserProfile(data.session.user.id);
+            setAuthState({
+              user: data.session.user,
+              profile,
+              loading: false,
+              isAuthenticated: true
+            });
+          }
+        } catch (error) {
+          console.error('❌ OAuth processing error:', error);
+          setAuthState(prev => ({ 
+            ...prev, 
+            loading: false, 
+            error: 'Error procesando autenticación OAuth' 
+          }));
+        }
+        
         // Clean the URL
         window.history.replaceState({}, document.title, window.location.pathname);
+        return true; // Indicate that OAuth was processed
       }
+      
+      return false; // No OAuth tokens found
     };
 
     // Check initial session
     const checkInitialSession = async () => {
       try {
         // Handle OAuth redirect first
-        handleOAuthRedirect();
+        const oauthProcessed = await handleOAuthRedirect();
+        
+        if (oauthProcessed) return;
         
         console.log('🔍 Starting initial session check...');
         const { data: { session }, error } = await supabase.auth.getSession();
@@ -236,7 +276,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setAuthState(prev => ({ ...prev, loading: true, error: undefined }));
 
-      const redirectUrl = `${window.location.origin}${window.location.pathname}`;
+      // Use the correct development server port
+      const redirectUrl = 'http://localhost:8080/';
       console.log('🔗 Google OAuth redirect URL:', redirectUrl);
 
       const { data, error } = await supabase.auth.signInWithOAuth({
