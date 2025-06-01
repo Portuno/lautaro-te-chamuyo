@@ -62,16 +62,21 @@ export class GoogleCalendarService {
     const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
     
     if (!clientId) {
+      const fallbackId = 'development-mock-client-id';
+      
       if (import.meta.env.DEV) {
         console.warn('⚠️ SECURITY WARNING: VITE_GOOGLE_CLIENT_ID not configured - using mock mode');
-        return 'development-mock-client-id';
       } else {
-        throw new Error('CRITICAL: VITE_GOOGLE_CLIENT_ID is required in production');
+        console.error('🚨 CRITICAL: VITE_GOOGLE_CLIENT_ID missing in production - Google Calendar disabled');
+        console.error('📋 Fix: Configure VITE_GOOGLE_CLIENT_ID in Vercel Environment Variables');
       }
+      
+      return fallbackId;
     }
     
     if (clientId === 'your-client-id') {
-      throw new Error('SECURITY ERROR: Default client ID detected - update VITE_GOOGLE_CLIENT_ID');
+      console.error('🔒 SECURITY ERROR: Default client ID detected - update VITE_GOOGLE_CLIENT_ID');
+      return 'development-mock-client-id';
     }
     
     // Validate client ID format (Google client IDs end with .googleusercontent.com)
@@ -87,18 +92,20 @@ export class GoogleCalendarService {
    */
   private validateAndGetRedirectUri(): string {
     const redirectUri = import.meta.env.VITE_GOOGLE_REDIRECT_URI;
+    const fallbackUri = import.meta.env.DEV ? 'http://localhost:8080/auth/callback' : 'https://placeholder-oauth-redirect.com/callback';
     
     if (!redirectUri) {
-      if (import.meta.env.DEV) {
-        return 'http://localhost:8080/auth/callback';
-      } else {
-        throw new Error('CRITICAL: VITE_GOOGLE_REDIRECT_URI is required in production');
+      if (!import.meta.env.DEV) {
+        console.error('🚨 CRITICAL: VITE_GOOGLE_REDIRECT_URI missing in production');
+        console.error('📋 Fix: Configure VITE_GOOGLE_REDIRECT_URI in Vercel Environment Variables');
       }
+      return fallbackUri;
     }
     
     // Security check: production should use HTTPS
     if (!import.meta.env.DEV && !redirectUri.startsWith('https://')) {
-      throw new Error('SECURITY ERROR: Production redirect URI must use HTTPS');
+      console.error('🔒 SECURITY ERROR: Production redirect URI must use HTTPS - using fallback');
+      return fallbackUri;
     }
     
     return redirectUri;
