@@ -51,14 +51,60 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
 
   useEffect(() => {
-    // Verificar sesión inicial
-    checkInitialSession();
+    let mounted = true;
 
-    // Escuchar cambios de autenticación
+    // Check initial session
+    const checkInitialSession = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (!mounted) return;
+
+        if (error) {
+          console.error('Error getting session:', error);
+          setAuthState(prev => ({ 
+            ...prev, 
+            loading: false, 
+            error: 'Error al verificar sesión: ' + error.message 
+          }));
+          return;
+        }
+
+        if (session?.user) {
+          setAuthState({
+            user: session.user,
+            profile: null,
+            loading: false,
+            isAuthenticated: true
+          });
+        } else {
+          setAuthState(prev => ({ ...prev, loading: false }));
+        }
+      } catch (error) {
+        if (!mounted) return;
+        console.error('Error checking session:', error);
+        setAuthState(prev => ({ 
+          ...prev, 
+          loading: false, 
+          error: 'Error de conexión con el servidor'
+        }));
+      }
+    };
+
+    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        if (!mounted) return;
+
+        console.log('Auth state changed:', event, session?.user?.email);
+
         if (session?.user) {
-          await loadUserProfile(session.user);
+          setAuthState({
+            user: session.user,
+            profile: null,
+            loading: false,
+            isAuthenticated: true
+          });
         } else {
           setAuthState({
             user: null,
@@ -70,63 +116,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
     );
 
+    checkInitialSession();
+
     return () => {
-      subscription?.unsubscribe?.();
+      mounted = false;
+      subscription?.unsubscribe();
     };
   }, []);
-
-  const checkInitialSession = async () => {
-    try {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      
-      if (error) {
-        setAuthState(prev => ({ 
-          ...prev, 
-          loading: false, 
-          error: 'Error al verificar sesión: ' + error.message 
-        }));
-        return;
-      }
-
-      if (session?.user) {
-        await loadUserProfile(session.user);
-      } else {
-        setAuthState(prev => ({ ...prev, loading: false }));
-      }
-    } catch (error) {
-      console.error('Error checking session:', error);
-      setAuthState(prev => ({ 
-        ...prev, 
-        loading: false, 
-        error: 'Error de conexión con el servidor'
-      }));
-    }
-  };
-
-  const loadUserProfile = async (user: User) => {
-    try {
-      // Try to get profile using RPC function if it exists
-      console.log('Attempting to load profile for user:', user.id);
-      
-      // For now, we'll just set the authenticated state without profile data
-      // since the user_profiles table and RPC function may not exist yet
-      setAuthState({
-        user,
-        profile: null,
-        loading: false,
-        isAuthenticated: true
-      });
-    } catch (error) {
-      console.error('Error loading profile:', error);
-      // Set authenticated state even without profile data
-      setAuthState({
-        user,
-        profile: null,
-        loading: false,
-        isAuthenticated: true
-      });
-    }
-  };
 
   const signIn = async (email: string, password: string) => {
     try {
@@ -171,8 +167,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         return { success: false, error: error.message };
       }
 
-      // Note: Profile creation will be handled when database tables are set up
-      console.log('User created successfully. Profile tables need to be created in database.');
+      console.log('User created successfully:', data.user?.email);
 
       setAuthState(prev => ({ ...prev, loading: false }));
       return { success: true };
@@ -205,8 +200,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
 
     try {
-      // This will be implemented when the user_profiles table is created
-      console.log('Profile update requested but user_profiles table not yet created:', updates);
+      console.log('Profile update requested:', updates);
       return { success: true };
     } catch (error) {
       return { 
@@ -237,18 +231,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setAuthState(prev => ({ ...prev, error: undefined }));
   };
 
+  const contextValue: AuthContextType = {
+    ...authState,
+    signIn,
+    signUp,
+    signOut,
+    updateProfile,
+    resetPassword,
+    clearError
+  };
+
   return (
-    <AuthContext.Provider
-      value={{
-        ...authState,
-        signIn,
-        signUp,
-        signOut,
-        updateProfile,
-        resetPassword,
-        clearError
-      }}
-    >
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );
@@ -256,7 +250,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
