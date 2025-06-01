@@ -83,9 +83,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let mounted = true;
 
+    // Handle OAuth redirect
+    const handleOAuthRedirect = () => {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const access_token = hashParams.get('access_token');
+      const refresh_token = hashParams.get('refresh_token');
+      
+      if (access_token) {
+        console.log('🔄 OAuth redirect detected, cleaning URL...');
+        // Clean the URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+      }
+    };
+
     // Check initial session
     const checkInitialSession = async () => {
       try {
+        // Handle OAuth redirect first
+        handleOAuthRedirect();
+        
         console.log('🔍 Starting initial session check...');
         const { data: { session }, error } = await supabase.auth.getSession();
         
@@ -220,10 +236,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setAuthState(prev => ({ ...prev, loading: true, error: undefined }));
 
+      const redirectUrl = `${window.location.origin}${window.location.pathname}`;
+      console.log('🔗 Google OAuth redirect URL:', redirectUrl);
+
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin
+          redirectTo: redirectUrl
         }
       });
 
