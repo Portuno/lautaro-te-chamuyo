@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './hooks/useAuth';
@@ -8,12 +9,14 @@ import Chat from './pages/Chat';
 import Laboratorio from './pages/Laboratorio';
 import LaubotDemo from './pages/LaubotDemo';
 import SupabaseDashboard from './pages/SupabaseDashboard';
+import DevEnvStatus from './components/DevEnvStatus';
 
 const AppContent = () => {
   const { shouldShowOnboarding, completeOnboarding } = useOnboarding();
 
   return (
     <>
+      <DevEnvStatus />
       <div className="min-h-screen bg-beige">
         <Routes>
           <Route path="/" element={<Index />} />
