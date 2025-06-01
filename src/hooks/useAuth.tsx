@@ -33,6 +33,7 @@ interface AuthState {
 interface AuthContextType extends AuthState {
   signIn: (email: string, password: string) => Promise<{ success: boolean; error?: string }>;
   signUp: (email: string, password: string, fullName?: string) => Promise<{ success: boolean; error?: string }>;
+  signInWithGoogle: () => Promise<{ success: boolean; error?: string }>;
   signOut: () => Promise<void>;
   updateProfile: (updates: Partial<UserProfile>) => Promise<{ success: boolean; error?: string }>;
   resetPassword: (email: string) => Promise<{ success: boolean; error?: string }>;
@@ -215,6 +216,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const signInWithGoogle = async () => {
+    try {
+      setAuthState(prev => ({ ...prev, loading: true, error: undefined }));
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin
+        }
+      });
+
+      if (error) {
+        setAuthState(prev => ({ ...prev, loading: false }));
+        return { success: false, error: error.message };
+      }
+
+      // OAuth redirect will handle the rest
+      return { success: true };
+    } catch (error) {
+      setAuthState(prev => ({ ...prev, loading: false }));
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Error desconocido' 
+      };
+    }
+  };
+
   const signOut = async () => {
     try {
       await supabase.auth.signOut();
@@ -286,6 +314,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     ...authState,
     signIn,
     signUp,
+    signInWithGoogle,
     signOut,
     updateProfile,
     resetPassword,
