@@ -8,7 +8,11 @@ interface StyleConfig {
   emoji: string;
 }
 
-const ChatSidebar = () => {
+interface ChatSidebarProps {
+  onEasterEgg?: () => void;
+}
+
+const ChatSidebar = ({ onEasterEgg }: ChatSidebarProps) => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [lockedClickCount, setLockedClickCount] = useState(0);
   const [lastClickTime, setLastClickTime] = useState(0);
@@ -33,33 +37,16 @@ const ChatSidebar = () => {
   const handleStyleChange = (style: ConversationStyle) => {
     if (!isStyleUnlocked(style)) {
       const now = Date.now();
-      if (now - lastClickTime < 5000) { // Reset counter if more than 5 seconds between clicks
+      if (now - lastClickTime < 5000) {
         setLockedClickCount(prev => prev + 1);
       } else {
         setLockedClickCount(1);
       }
       setLastClickTime(now);
 
-      if (lockedClickCount === 2) { // On third click
-        setLockedClickCount(0); // Reset counter
-        // Start typing sequence
-        setShowTypingSequence(true);
-        
-        // First typing animation
-        setTimeout(() => {
-          setShowTypingSequence(false);
-          // Pause
-          setTimeout(() => {
-            // Second typing animation
-            setShowTypingSequence(true);
-            // Show message
-            setTimeout(() => {
-              setShowTypingSequence(false);
-              const event = new CustomEvent('showAnsiosaMessage');
-              window.dispatchEvent(event);
-            }, 3000);
-          }, 2000);
-        }, 3000);
+      if (lockedClickCount === 2) {
+        setLockedClickCount(0);
+        if (onEasterEgg) onEasterEgg();
       }
       return;
     }

@@ -5,7 +5,7 @@ interface QuickAction {
 }
 
 interface QuickActionsBarProps {
-  onSendMessage?: (message: string) => void;
+  onSendMessage?: (message: string, options?: { isQuickAction?: boolean }) => void;
 }
 
 const QUICK_ACTIONS: QuickAction[] = [
@@ -39,7 +39,7 @@ const QUICK_ACTIONS: QuickAction[] = [
 const QuickActionsBar = ({ onSendMessage }: QuickActionsBarProps) => {
   const handleActionClick = (action: QuickAction) => {
     if (onSendMessage) {
-      onSendMessage(action.message);
+      onSendMessage(action.message, { isQuickAction: true });
     }
   };
 

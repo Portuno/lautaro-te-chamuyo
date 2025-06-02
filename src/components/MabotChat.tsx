@@ -29,24 +29,28 @@ export function MabotChat() {
   const [error, setError] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [useFallback, setUseFallback] = useState(false);
+  const [ansiosaSequence, setAnsiosaSequence] = useState<'idle' | 'typing1' | 'pause' | 'typing2'>('idle');
 
-  // Add event listener for ansiosa message
-  useEffect(() => {
-    const handleAnsiosaMessage = () => {
-      setMessages(prev => [
-        ...prev,
-        {
-          sender: 'lautaro',
-          content: 'No seas ansiosa, todavía no funciona eso 😏',
-          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        }
-      ]);
-    };
-
-    window.addEventListener('showAnsiosaMessage', handleAnsiosaMessage);
-    return () => {
-      window.removeEventListener('showAnsiosaMessage', handleAnsiosaMessage);
-    };
+  // Easter egg: handle sequence directly
+  const handleEasterEggSequence = useCallback(() => {
+    setAnsiosaSequence('typing1');
+    setTimeout(() => {
+      setAnsiosaSequence('pause');
+      setTimeout(() => {
+        setAnsiosaSequence('typing2');
+        setTimeout(() => {
+          setAnsiosaSequence('idle');
+          setMessages(prev => [
+            ...prev,
+            {
+              sender: 'lautaro',
+              content: 'No seas ansiosa, todavía no funciona eso 😏',
+              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            }
+          ]);
+        }, 3000);
+      }, 2000);
+    }, 3000);
   }, []);
 
   const initializeClient = useCallback(async () => {
@@ -81,7 +85,7 @@ export function MabotChat() {
     initializeClient();
   }, [initializeClient]);
 
-  const handleSendMessage = async (input: string) => {
+  const handleSendMessage = async (input: string, options?: { isQuickAction?: boolean }) => {
     if (!input.trim() || isTyping) return;
     setIsTyping(true);
     setError(null);
@@ -96,22 +100,63 @@ export function MabotChat() {
       }
     ]);
 
+    // Fallback logic
     if (useFallback || !client) {
-      // Use enhanced fallback responses with intent detection
       setTimeout(() => {
         const intent = detectIntent(input);
-        const response = getRandomResponse(FALLBACK_RESPONSES[intent]);
+        // If quick action, always use natural response
+        if (options?.isQuickAction) {
+          let response: string;
+          if (intent === 'ideas') {
+            response = getRandomResponse(FALLBACK_RESPONSES.ideas);
+          } else if (intent === 'motivation') {
+            response = getRandomResponse(FALLBACK_RESPONSES.motivation);
+          } else if (intent === 'relax') {
+            response = getRandomResponse(FALLBACK_RESPONSES.relax);
+          } else if (intent === 'flirty') {
+            response = getRandomResponse(FALLBACK_RESPONSES.flirty);
+          } else if (intent === 'greetings') {
+            response = getRandomResponse(FALLBACK_RESPONSES.greetings);
+          } else {
+            response = getRandomResponse(FALLBACK_RESPONSES.default);
+          }
+          setMessages(prev => [
+            ...prev,
+            {
+              sender: 'lautaro',
+              content: response,
+              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            }
+          ]);
+          setIsTyping(false);
+          return;
+        }
+        // If user asks about Mabot/credenciales/premium, show link
+        if (intent === 'mabot') {
+          const response = getRandomResponse(FALLBACK_RESPONSES.mabot);
+          setMessages(prev => [
+            ...prev,
+            {
+              sender: 'lautaro',
+              content: response,
+              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+              isHtml: true
+            }
+          ]);
+          setIsTyping(false);
+          return;
+        }
+        // For any other free question, mention credentials
         setMessages(prev => [
           ...prev,
           {
             sender: 'lautaro',
-            content: response,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            isHtml: intent === 'mabot' // Enable HTML rendering for Mabot responses with links
+            content: 'Para poder ayudarte con eso, necesito que configures mis credenciales de Mabot.',
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
           }
         ]);
         setIsTyping(false);
-      }, Math.random() * 500 + 800); // Random delay between 800ms and 1300ms
+      }, Math.random() * 500 + 800);
       return;
     }
 
@@ -144,6 +189,9 @@ export function MabotChat() {
     }
   };
 
+  // Block input if typing or ansiosaSequence is active
+  const inputBlocked = isTyping || ansiosaSequence === 'typing1' || ansiosaSequence === 'typing2';
+
   if (!isInitialized) {
     return (
       <div className="flex items-center justify-center h-full">
@@ -159,7 +207,7 @@ export function MabotChat() {
     <div className="relative min-h-screen bg-gradient-to-br from-beige via-sand to-[#ffd6c0] dark:from-[#201016] dark:to-[#442134] flex flex-col">
       <ChatHeader />
       <div className="flex flex-1">
-        <ChatSidebar />
+        <ChatSidebar onEasterEgg={handleEasterEggSequence} />
         <div className="w-full max-w-2xl mx-auto flex flex-col min-h-0 flex-1 relative">
           <div className="flex-1 overflow-y-auto px-2 pb-4 pt-[76px] md:px-6 md:pt-[90px] bg-transparent" style={{scrollbarGutter: 'stable'}}>
             {useFallback && (
@@ -191,10 +239,10 @@ export function MabotChat() {
                 isHtml={msg.isHtml}
               />
             ))}
-            {isTyping && <TypingIndicator />}
+            {(isTyping || ansiosaSequence === 'typing1' || ansiosaSequence === 'typing2') && <TypingIndicator />}
           </div>
           <QuickActionsBar onSendMessage={handleSendMessage} />
-          <ChatInput onSendMessage={handleSendMessage} isTyping={isTyping} />
+          <ChatInput onSendMessage={handleSendMessage} isTyping={inputBlocked} />
           {error && (
             <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 w-full max-w-lg">
               <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg flex items-center justify-between">
