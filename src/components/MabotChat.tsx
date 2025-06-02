@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { AsyncMabotClient, MabotError } from '../lib/mabotclient';
 import { UpdateOut } from '../lib/update';
 import { API_BASE_URL } from '../config';
+import { FALLBACK_RESPONSES, detectIntent, getRandomResponse } from '../lib/fallbackResponses';
 import ChatHeader from './ChatHeader';
 import ChatSidebar from './ChatSidebar';
 import ChatMessageBubble from './ChatMessageBubble';
@@ -13,14 +14,8 @@ interface Message {
   sender: 'user' | 'lautaro';
   content: string;
   time?: string;
+  isHtml?: boolean;
 }
-
-// Fallback responses when Mabot is not available
-const FALLBACK_RESPONSES = [
-  "¡Hola! Estoy en modo demo. Para una experiencia completa, configura las credenciales de Mabot.",
-  "¡Qué buena onda! En este modo demo no puedo conectarme al servidor, pero pronto estaré funcionando al 100%.",
-  "Me encanta que me escribas. Cuando tenga mis credenciales configuradas, podremos charlar mucho mejor.",
-];
 
 export function MabotChat() {
   const [client, setClient] = useState<AsyncMabotClient | null>(null);
@@ -83,19 +78,21 @@ export function MabotChat() {
     ]);
 
     if (useFallback || !client) {
-      // Use fallback responses
+      // Use enhanced fallback responses with intent detection
       setTimeout(() => {
-        const response = FALLBACK_RESPONSES[Math.floor(Math.random() * FALLBACK_RESPONSES.length)];
+        const intent = detectIntent(input);
+        const response = getRandomResponse(FALLBACK_RESPONSES[intent]);
         setMessages(prev => [
           ...prev,
           {
             sender: 'lautaro',
             content: response,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            isHtml: intent === 'mabot' // Enable HTML rendering for Mabot responses with links
           }
         ]);
         setIsTyping(false);
-      }, 1000);
+      }, Math.random() * 500 + 800); // Random delay between 800ms and 1300ms
       return;
     }
 
@@ -132,7 +129,7 @@ export function MabotChat() {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-vino mx-auto mb-4"></div>
           <p className="text-gray-600">Inicializando chat...</p>
         </div>
       </div>
@@ -147,8 +144,23 @@ export function MabotChat() {
         <div className="w-full max-w-2xl mx-auto flex flex-col min-h-0 flex-1 relative">
           <div className="flex-1 overflow-y-auto px-2 pb-4 pt-[76px] md:px-6 md:pt-[90px] bg-transparent" style={{scrollbarGutter: 'stable'}}>
             {useFallback && (
-              <div className="mb-4 p-3 bg-amber-100 text-amber-800 rounded-lg text-sm">
-                💡 Modo demo activo. Para conectar con Mabot, configura las variables de entorno.
+              <div className="mb-4 p-4 bg-amber-50 border border-amber-200 text-amber-800 rounded-lg text-sm">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-xl">💡</span>
+                  <span className="font-semibold">Modo Demo Activo</span>
+                </div>
+                <p>
+                  Para desbloquear todas mis funciones, visitá{' '}
+                  <a 
+                    href="https://mabot.app" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-vino hover:underline font-semibold"
+                  >
+                    mabot.app
+                  </a>
+                  {' '}y configurá mis credenciales.
+                </p>
               </div>
             )}
             {messages.map((msg, i) => (
@@ -157,6 +169,7 @@ export function MabotChat() {
                 sender={msg.sender}
                 content={msg.content}
                 time={msg.time}
+                isHtml={msg.isHtml}
               />
             ))}
             {isTyping && <TypingIndicator />}
@@ -178,7 +191,14 @@ export function MabotChat() {
           )}
           <div className="text-center my-2 opacity-80 text-sm">
             ¿Querés desbloquear todo el chamuyo de Lautaro?{' '}
-            <a href="/#" className="text-vino hover:underline font-semibold">Probá el modo Premium</a>
+            <a 
+              href="https://mabot.app" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-vino hover:underline font-semibold"
+            >
+              Probá el modo Premium
+            </a>
           </div>
         </div>
       </div>

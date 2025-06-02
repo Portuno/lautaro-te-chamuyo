@@ -6,6 +6,7 @@ interface Props {
   content: string;
   mood?: ConversationStyle | "picaro";
   time?: string;
+  isHtml?: boolean;
 }
 
 const MOOD_BG: Record<string, string> = {
@@ -17,7 +18,7 @@ const MOOD_BG: Record<string, string> = {
   neutral: "bg-white dark:bg-[#26121a]",
 };
 
-const ChatMessageBubble = ({ sender, content, mood = "amable", time }: Props) => {
+const ChatMessageBubble = ({ sender, content, mood = "amable", time, isHtml }: Props) => {
   const isLautaro = sender === "lautaro";
   return (
     <div className={cn(
@@ -35,12 +36,20 @@ const ChatMessageBubble = ({ sender, content, mood = "amable", time }: Props) =>
           ? MOOD_BG[mood] || MOOD_BG["amable"]
           : "bg-white dark:bg-[#23131c] border border-beige/40"
       )}>
-        <span className={cn(
-          "block text-[15px] leading-relaxed",
-          isLautaro
-            ? "text-vino dark:text-beige"
-            : "text-vino/90 dark:text-beige"
-        )}>{content}</span>
+        <span 
+          className={cn(
+            "block text-[15px] leading-relaxed",
+            isLautaro
+              ? "text-vino dark:text-beige"
+              : "text-vino/90 dark:text-beige"
+          )}
+        >
+          {isHtml ? (
+            <span dangerouslySetInnerHTML={{ __html: content }} />
+          ) : (
+            content
+          )}
+        </span>
         {time && (
           <span className="absolute bottom-1 right-2 text-[11px] text-vino/40">{time}</span>
         )}
