@@ -37,16 +37,24 @@ const ChatSidebar = ({ onEasterEgg }: ChatSidebarProps) => {
   const handleStyleChange = (style: ConversationStyle) => {
     if (!isStyleUnlocked(style)) {
       const now = Date.now();
+      console.log('Locked style clicked:', { now, lastClickTime, lockedClickCount }); // Debug log
+      
       if (now - lastClickTime < 5000) {
         setLockedClickCount(prev => {
           const newCount = prev + 1;
+          console.log('Incrementing click count:', { prev, newCount }); // Debug log
           if (newCount === 3) {
+            console.log('Easter egg condition met!'); // Debug log
             setLockedClickCount(0);
-            if (onEasterEgg) onEasterEgg();
+            if (onEasterEgg) {
+              console.log('Triggering easter egg'); // Debug log
+              onEasterEgg();
+            }
           }
           return newCount;
         });
       } else {
+        console.log('Resetting click count (timeout)'); // Debug log
         setLockedClickCount(1);
       }
       setLastClickTime(now);
@@ -110,7 +118,6 @@ const ChatSidebar = ({ onEasterEgg }: ChatSidebarProps) => {
               <div key={key} className="relative group">
                 <button
                   onClick={() => handleStyleChange(key as ConversationStyle)}
-                  disabled={!isAvailable}
                   className={`
                     relative py-2 px-3 rounded-lg font-medium text-sm transition-all duration-200 w-full
                     ${isAvailable 

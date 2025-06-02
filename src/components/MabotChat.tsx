@@ -33,6 +33,7 @@ export function MabotChat() {
 
   // Easter egg: handle sequence directly
   const handleEasterEggSequence = useCallback(() => {
+    console.log('Easter egg triggered'); // Debug log
     setAnsiosaSequence('typing1');
     setTimeout(() => {
       setAnsiosaSequence('pause');
@@ -239,7 +240,9 @@ export function MabotChat() {
                 isHtml={msg.isHtml}
               />
             ))}
-            {(isTyping || ansiosaSequence === 'typing1' || ansiosaSequence === 'typing2') && <TypingIndicator />}
+            {(isTyping || ansiosaSequence === 'typing1' || ansiosaSequence === 'typing2') && (
+              <TypingIndicator />
+            )}
           </div>
           <QuickActionsBar onSendMessage={handleSendMessage} />
           <ChatInput onSendMessage={handleSendMessage} isTyping={inputBlocked} />
