@@ -1,6 +1,6 @@
 import { Lock, Settings, X } from "lucide-react";
 import { useChatConfig, type ConversationStyle } from "@/hooks/useChatConfig";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface StyleConfig {
   name: string;
@@ -10,6 +10,9 @@ interface StyleConfig {
 
 const ChatSidebar = () => {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [lockedClickCount, setLockedClickCount] = useState(0);
+  const [lastClickTime, setLastClickTime] = useState(0);
+  const [showTypingSequence, setShowTypingSequence] = useState(false);
   
   // Usar el contexto de configuración del chat
   const { 
@@ -28,8 +31,47 @@ const ChatSidebar = () => {
   };
 
   const handleStyleChange = (style: ConversationStyle) => {
+    if (!isStyleUnlocked(style)) {
+      const now = Date.now();
+      if (now - lastClickTime < 5000) { // Reset counter if more than 5 seconds between clicks
+        setLockedClickCount(prev => prev + 1);
+      } else {
+        setLockedClickCount(1);
+      }
+      setLastClickTime(now);
+
+      if (lockedClickCount === 2) { // On third click
+        setLockedClickCount(0); // Reset counter
+        // Start typing sequence
+        setShowTypingSequence(true);
+        
+        // First typing animation
+        setTimeout(() => {
+          setShowTypingSequence(false);
+          // Pause
+          setTimeout(() => {
+            // Second typing animation
+            setShowTypingSequence(true);
+            // Show message
+            setTimeout(() => {
+              setShowTypingSequence(false);
+              const event = new CustomEvent('showAnsiosaMessage');
+              window.dispatchEvent(event);
+            }, 3000);
+          }, 2000);
+        }, 3000);
+      }
+      return;
+    }
     setStyle(style);
   };
+
+  // Clean up event listener
+  useEffect(() => {
+    return () => {
+      setShowTypingSequence(false);
+    };
+  }, []);
 
   const handleChamuyoChange = (value: number) => {
     setChamuyoIntensity(value);
@@ -86,7 +128,7 @@ const ChatSidebar = () => {
                       ? (isSelected 
                           ? "bg-coral/40 text-vino border-2 border-coral shadow-md transform scale-105" 
                           : "bg-sand/60 text-vino hover:bg-coral/20 border border-sand")
-                      : "bg-gray-200/40 text-gray-600 cursor-not-allowed backdrop-blur-[1px] border border-gray-300/30"
+                      : "bg-gray-200/40 text-gray-600 cursor-pointer backdrop-blur-[1px] border border-gray-300/30 hover:bg-gray-200/60"
                     }
                   `}
                 >

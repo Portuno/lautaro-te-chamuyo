@@ -30,6 +30,25 @@ export function MabotChat() {
   const [isInitialized, setIsInitialized] = useState(false);
   const [useFallback, setUseFallback] = useState(false);
 
+  // Add event listener for ansiosa message
+  useEffect(() => {
+    const handleAnsiosaMessage = () => {
+      setMessages(prev => [
+        ...prev,
+        {
+          sender: 'lautaro',
+          content: 'No seas ansiosa, todavía no funciona eso 😏',
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }
+      ]);
+    };
+
+    window.addEventListener('showAnsiosaMessage', handleAnsiosaMessage);
+    return () => {
+      window.removeEventListener('showAnsiosaMessage', handleAnsiosaMessage);
+    };
+  }, []);
+
   const initializeClient = useCallback(async () => {
     try {
       const username = import.meta.env.VITE_MABOT_USERNAME;
