@@ -1,6 +1,6 @@
 # 🤖 Laubot - Tu Asistente Personal Inteligente
 
-Un asistente personal con chamuyo que gestiona tu calendario, citas y vida digital con estilo y personalidad única.
+Un asistente personal con chamuyo que gestiona tu calendario, citas y vida digital con estilo y personalidad única, potenciado por Mabot AI.
 
 ## ✨ Características Principales
 
@@ -15,6 +15,8 @@ Un asistente personal con chamuyo que gestiona tu calendario, citas y vida digit
 - **Estilos adaptativos**: Desde formal hasta divertido, según tu estado de ánimo
 - **Contexto inteligente**: Recuerda conversaciones anteriores para continuidad
 - **Respuestas personalizadas**: Se adapta a tu forma de comunicarte
+- **Integración Mabot AI**: Potencia las conversaciones con inteligencia artificial avanzada
+- **Modo Premium**: Desbloquea todo el potencial de Mabot con credenciales premium
 
 ### 🔐 **Autenticación Segura**
 - **Sistema completo**: Registro, login y recuperación de contraseña
@@ -26,6 +28,7 @@ Un asistente personal con chamuyo que gestiona tu calendario, citas y vida digit
 - **Nivel de chamuyo**: Desarrolla tu habilidad conversacional
 - **Puntos de actividad**: Gana puntos por interacciones y uso del calendario
 - **Historial completo**: Revisa todas tus conversaciones y eventos
+- **Desbloqueo gradual**: Accede a más estilos y funcionalidades según tu nivel
 
 ## 🚀 Instalación Rápida
 
@@ -34,6 +37,7 @@ Un asistente personal con chamuyo que gestiona tu calendario, citas y vida digit
 - npm o yarn
 - Cuenta de Supabase (para base de datos)
 - Google Calendar API (opcional)
+- Credenciales de Mabot (opcional, para modo premium)
 
 ### Configuración
 
@@ -56,6 +60,8 @@ cp .env.example .env
 # Edita .env con tus credenciales:
 VITE_SUPABASE_URL=https://tu-proyecto.supabase.co
 VITE_SUPABASE_ANON_KEY=tu_clave_publica_anonima
+VITE_MABOT_USERNAME=tu_usuario_mabot
+VITE_MABOT_PASSWORD=tu_password_mabot
 ```
 
 4. **Iniciar desarrollo**
@@ -76,10 +82,12 @@ npm run dev
 - **Supabase** - Backend como servicio
 - **PostgreSQL** - Base de datos relacional
 - **Row Level Security** - Seguridad a nivel de fila
+- **Mabot AI** - Motor de conversación inteligente
 
 **APIs Externas**
 - **Google Calendar API** - Gestión de calendario
 - **REST APIs** - Integración sin dependencias de Node.js
+- **Mabot API** - Integración con el motor de IA
 
 ## 📁 Estructura del Proyecto
 
@@ -181,6 +189,48 @@ Laubot: "Listo, moví tu reunión para las 16:00. Ya está actualizada en tu cal
 - **Integración automática**: Sincronización bidireccional con Google Calendar
 - **Responsive design**: Funciona perfecto en mobile y desktop
 - **Modo offline**: Funcionalidad básica sin conexión
+- **Integración Mabot**: 
+  - Modo demo con respuestas predefinidas
+  - Modo premium con IA avanzada
+  - Personalidad adaptativa
+  - Respuestas contextuales
+  - Sistema de niveles y desbloqueos
+
+## 💎 Beneficios de Mabot Premium
+
+### 🎯 **Conversaciones Más Naturales**
+- Respuestas generadas por IA avanzada
+- Personalidad consistente y adaptativa
+- Contexto mantenido a largo plazo
+- Entendimiento profundo del lenguaje natural
+
+### 🎨 **Estilos de Conversación**
+- **Amable** (Nivel 1): Interacciones básicas y cordiales
+- **Formal** (Nivel 3): Comunicación profesional y estructurada
+- **Divertido** (Nivel 4): Conversaciones casuales y entretenidas
+- **Tierno** (Nivel 8): Interacciones más personales y afectuosas
+
+### ⚡ **Características Premium**
+- Intensidad de chamuyo ajustable
+- Respuestas más elaboradas y contextuales
+- Mejor manejo de situaciones complejas
+- Integración completa con el calendario
+- Acceso a todas las funcionalidades avanzadas
+
+## 🔄 Modos de Operación
+
+### 🆓 **Modo Demo**
+- Respuestas predefinidas para casos comunes
+- Funcionalidades básicas de calendario
+- Estilo de conversación básico
+- Sin necesidad de credenciales Mabot
+
+### 💎 **Modo Premium**
+- Acceso completo a Mabot AI
+- Todos los estilos de conversación
+- Intensidad de chamuyo personalizable
+- Integración completa con calendario
+- Requiere credenciales Mabot válidas
 
 ## 🔐 Seguridad
 

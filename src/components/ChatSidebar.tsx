@@ -38,16 +38,18 @@ const ChatSidebar = ({ onEasterEgg }: ChatSidebarProps) => {
     if (!isStyleUnlocked(style)) {
       const now = Date.now();
       if (now - lastClickTime < 5000) {
-        setLockedClickCount(prev => prev + 1);
+        setLockedClickCount(prev => {
+          const newCount = prev + 1;
+          if (newCount === 3) {
+            setLockedClickCount(0);
+            if (onEasterEgg) onEasterEgg();
+          }
+          return newCount;
+        });
       } else {
         setLockedClickCount(1);
       }
       setLastClickTime(now);
-
-      if (lockedClickCount === 2) {
-        setLockedClickCount(0);
-        if (onEasterEgg) onEasterEgg();
-      }
       return;
     }
     setStyle(style);
