@@ -12,27 +12,27 @@ const QUICK_ACTIONS: QuickAction[] = [
   { 
     icon: "📝", 
     label: "Recordarme algo",
-    message: "Recordame algo importante para hoy"
+    message: "¿Me ayudás a recordar algo importante para hoy?"
   },
   { 
     icon: "🧠", 
     label: "Tirame una idea",
-    message: "Tirame una idea creativa para pasar el tiempo"
+    message: "¿Me tirás una idea creativa para hacer algo diferente?"
   },
   { 
     icon: "😌", 
     label: "Decime algo lindo",
-    message: "Decime algo lindo para alegrarme el día"
+    message: "¿Me decís algo lindo para alegrarme el día?"
   },
   { 
     icon: "🧊", 
     label: "Mantenete tranqui",
-    message: "Ayudame a mantenerme tranquilo y relajado"
+    message: "¿Me ayudás a mantener la calma y relajarme un poco?"
   },
   { 
     icon: "😏", 
     label: "Ponete chamuyero",
-    message: "Ponete un poco chamuyero conmigo"
+    message: "Dale, ponete un poco chamuyero conmigo 😏"
   },
 ];
 
