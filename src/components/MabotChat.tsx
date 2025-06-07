@@ -259,11 +259,13 @@ export function MabotChat() {
         if (assistantMessage) {
           const textContent = assistantMessage.contents.find(c => c.type === 'text');
           if (textContent) {
+            // Limpiar prefijo tipo *Laubot*: o *Mabot*: al inicio del mensaje
+            let cleanText = textContent.value.replace(/^\*[A-Za-z]+\*:\s?/, '');
             setMessages(prev => [
               ...prev,
               {
                 sender: 'lautaro',
-                content: textContent.value,
+                content: cleanText,
                 time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
               }
             ]);
