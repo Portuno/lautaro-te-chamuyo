@@ -160,6 +160,76 @@ export class SupabaseLaubotService {
       return { success: false, error: error instanceof Error ? error.message : 'Error desconocido' };
     }
   }
+
+  /**
+   * CHATS Y MENSAJES (multi-chat)
+   */
+
+  // Listar los chats del usuario (máx 3)
+  async getUserChats(userId: string) {
+    const { data, error } = await supabaseClient
+      .from('chats')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: true });
+    if (error) throw error;
+    return data;
+  }
+
+  // Crear un nuevo chat
+  async createChat(userId: string, name: string) {
+    const { data, error } = await supabaseClient
+      .from('chats')
+      .insert([{ user_id: userId, name }])
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  // Renombrar un chat
+  async renameChat(chatId: string, name: string) {
+    const { data, error } = await supabaseClient
+      .from('chats')
+      .update({ name })
+      .eq('id', chatId)
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
+
+  // Borrar un chat
+  async deleteChat(chatId: string) {
+    const { error } = await supabaseClient
+      .from('chats')
+      .delete()
+      .eq('id', chatId);
+    if (error) throw error;
+    return true;
+  }
+
+  // Listar mensajes de un chat
+  async getChatMessages(chatId: string) {
+    const { data, error } = await supabaseClient
+      .from('messages')
+      .select('*')
+      .eq('chat_id', chatId)
+      .order('created_at', { ascending: true });
+    if (error) throw error;
+    return data;
+  }
+
+  // Agregar mensaje a un chat
+  async addMessage(chatId: string, sender: string, content: string) {
+    const { data, error } = await supabaseClient
+      .from('messages')
+      .insert([{ chat_id: chatId, sender, content }])
+      .select()
+      .single();
+    if (error) throw error;
+    return data;
+  }
 }
 
 // Instancia singleton

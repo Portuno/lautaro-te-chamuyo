@@ -17,19 +17,71 @@ interface Message {
   isHtml?: boolean;
 }
 
+const STORAGE_KEYS = {
+  CHAT_ID: 'chatId',
+  MESSAGES: 'chatMessages',
+  CURRENT_BOT: 'currentBot'
+} as const;
+
 export function MabotChat() {
   const [client, setClient] = useState<AsyncMabotClient | null>(null);
-  const [messages, setMessages] = useState<Message[]>([{
-    sender: 'lautaro',
-    content: 'Buenas, soy Lautaro. Podés escribirme lo que quieras, o aprovechar y apretar algunas de las funciones rápidas de abajo!',
-    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-  }]);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    const storedMessages = sessionStorage.getItem(STORAGE_KEYS.MESSAGES);
+    if (storedMessages) {
+      try {
+        return JSON.parse(storedMessages);
+      } catch {
+        return [{
+          sender: 'lautaro',
+          content: 'Buenas, soy Lautaro. Podés escribirme lo que quieras, o aprovechar y apretar algunas de las funciones rápidas de abajo!',
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }];
+      }
+    }
+    return [{
+      sender: 'lautaro',
+      content: 'Buenas, soy Lautaro. Podés escribirme lo que quieras, o aprovechar y apretar algunas de las funciones rápidas de abajo!',
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    }];
+  });
   const [chatId, setChatId] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   const [useFallback, setUseFallback] = useState(false);
   const [ansiosaSequence, setAnsiosaSequence] = useState<'idle' | 'typing1' | 'pause' | 'typing2'>('idle');
+  const [showDebugInfo, setShowDebugInfo] = useState(false);
+
+  // Persistir mensajes en sessionStorage cuando cambian
+  useEffect(() => {
+    sessionStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(messages));
+  }, [messages]);
+
+  // Generar un chatId único al montar el componente
+  useEffect(() => {
+    const storedChatId = sessionStorage.getItem(STORAGE_KEYS.CHAT_ID);
+    if (storedChatId) {
+      console.log('Usando chatId existente:', storedChatId);
+      setChatId(storedChatId);
+    } else {
+      const newChatId = crypto.randomUUID();
+      console.log('Generando nuevo chatId:', newChatId);
+      sessionStorage.setItem(STORAGE_KEYS.CHAT_ID, newChatId);
+      setChatId(newChatId);
+    }
+  }, []);
+
+  const startNewConversation = useCallback(() => {
+    const newChatId = crypto.randomUUID();
+    console.log('Iniciando nueva conversación con chatId:', newChatId);
+    sessionStorage.setItem(STORAGE_KEYS.CHAT_ID, newChatId);
+    setChatId(newChatId);
+    setMessages([{
+      sender: 'lautaro',
+      content: '¡Nueva conversación iniciada! ¿En qué puedo ayudarte?',
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    }]);
+  }, []);
 
   // Easter egg: handle sequence directly
   const handleEasterEggSequence = useCallback(() => {
@@ -59,26 +111,51 @@ export function MabotChat() {
       const username = import.meta.env.VITE_MABOT_USERNAME;
       const password = import.meta.env.VITE_MABOT_PASSWORD;
       
+      console.log('Credenciales:', { 
+        username: username ? 'presente' : 'ausente',
+        password: password ? 'presente' : 'ausente',
+        baseUrl: API_BASE_URL
+      });
+      
       if (!username || !password) {
+        console.log('Faltan credenciales, activando modo demo');
         setUseFallback(true);
         setIsInitialized(true);
         return;
       }
 
+      console.log('Inicializando cliente Mabot...');
       const mabotClient = new AsyncMabotClient({
         baseUrl: API_BASE_URL,
         username,
         password,
         timeout: 30000,
       });
+      
+      console.log('Cargando token...');
       await mabotClient.loadToken();
+      console.log('Cliente Mabot inicializado correctamente');
+      
       setClient(mabotClient);
       setIsInitialized(true);
       setError(null);
     } catch (err) {
+      console.error('Error al inicializar cliente:', err);
+      if (err instanceof MabotError) {
+        if (err.status === 401) {
+          setError('Credenciales inválidas. Por favor, verifica tu usuario y contraseña.');
+        } else if (err.status === 408) {
+          setError('Tiempo de conexión agotado. Por favor, intenta nuevamente.');
+        } else if (err.status === 0) {
+          setError('Error de conexión. Por favor, verifica tu conexión a internet.');
+        } else {
+          setError(`Error al inicializar: ${err.message}`);
+        }
+      } else {
+        setError('Error inesperado al inicializar el cliente.');
+      }
       setUseFallback(true);
       setIsInitialized(true);
-      setError(null);
     }
   }, []);
 
@@ -87,7 +164,16 @@ export function MabotChat() {
   }, [initializeClient]);
 
   const handleSendMessage = async (input: string, options?: { isQuickAction?: boolean }) => {
-    if (!input.trim() || isTyping) return;
+    if (!input.trim() || isTyping || !chatId) {
+      console.log('No se puede enviar mensaje:', { 
+        input: input.trim(), 
+        isTyping, 
+        chatId 
+      });
+      return;
+    }
+    
+    console.log('Enviando mensaje con chatId:', chatId, 'y bot: laubot');
     setIsTyping(true);
     setError(null);
     
@@ -160,27 +246,32 @@ export function MabotChat() {
       }, Math.random() * 500 + 800);
       return;
     }
-
-    const currentChatId = chatId || crypto.randomUUID();
-    if (!chatId) setChatId(currentChatId);
     
     try {
-      const response: UpdateOut = await client.sendMessage(currentChatId, input);
-      const assistantMessage = response.messages[response.messages.length - 1];
-      if (assistantMessage) {
-        const textContent = assistantMessage.contents.find(c => c.type === 'text');
-        if (textContent) {
-          setMessages(prev => [
-            ...prev,
-            {
-              sender: 'lautaro',
-              content: textContent.value,
-              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            }
-          ]);
+      // Siempre usar Laubot
+      const response: UpdateOut = await client.sendMessage(chatId, input, { 
+        bot_username: 'laubot'
+      });
+      
+      // Procesar la respuesta
+      if (response.messages && response.messages.length > 0) {
+        const assistantMessage = response.messages[response.messages.length - 1];
+        if (assistantMessage) {
+          const textContent = assistantMessage.contents.find(c => c.type === 'text');
+          if (textContent) {
+            setMessages(prev => [
+              ...prev,
+              {
+                sender: 'lautaro',
+                content: textContent.value,
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+              }
+            ]);
+          }
         }
       }
     } catch (error) {
+      console.error('Error al enviar mensaje:', error);
       const errorMessage = error instanceof MabotError
         ? error.message
         : 'An error occurred while sending the message';
@@ -231,6 +322,13 @@ export function MabotChat() {
                 </p>
               </div>
             )}
+            <button
+              onClick={startNewConversation}
+              className="text-vino dark:text-beige text-sm hover:underline mb-4"
+              title="Iniciar nueva conversación"
+            >
+              Nueva conversación
+            </button>
             {messages.map((msg, i) => (
               <ChatMessageBubble
                 key={i}
@@ -244,6 +342,27 @@ export function MabotChat() {
               <TypingIndicator />
             )}
           </div>
+          <div className="flex items-center justify-between px-2 py-1 bg-sand/80 dark:bg-[#2e1e21]/70 border-t border-beige/60">
+            <button
+              onClick={startNewConversation}
+              className="text-vino dark:text-beige text-sm hover:underline"
+              title="Iniciar nueva conversación"
+            >
+              Nueva conversación
+            </button>
+            <button
+              onClick={() => setShowDebugInfo(!showDebugInfo)}
+              className="text-vino/50 dark:text-beige/50 text-xs hover:text-vino dark:hover:text-beige"
+              title="Mostrar/ocultar información de debug"
+            >
+              {showDebugInfo ? 'Ocultar debug' : 'Mostrar debug'}
+            </button>
+          </div>
+          {showDebugInfo && (
+            <div className="px-2 py-1 bg-sand/80 dark:bg-[#2e1e21]/70 border-t border-beige/60 text-xs text-vino/70 dark:text-beige/70 font-mono">
+              <div>ChatId: {chatId}</div>
+            </div>
+          )}
           <QuickActionsBar onSendMessage={handleSendMessage} />
           <ChatInput onSendMessage={handleSendMessage} isTyping={inputBlocked} />
           {error && (

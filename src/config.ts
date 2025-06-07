@@ -31,10 +31,14 @@ export const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ||
 // Additional security configurations
 export const API_CONFIG = {
   baseURL: API_BASE_URL,
-  timeout: 10000, // 10 seconds timeout
+  timeout: 30000, // 30 seconds timeout
   maxRetries: 3,
   isDevelopment: isActualDevelopment,
   isConfigured: !!import.meta.env.VITE_API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json'
+  }
 } as const;
 
 // Validation function to ensure configuration is secure
