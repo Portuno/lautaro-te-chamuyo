@@ -259,8 +259,8 @@ export function MabotChat() {
         if (assistantMessage) {
           const textContent = assistantMessage.contents.find(c => c.type === 'text');
           if (textContent) {
-            // Limpiar prefijo tipo *Laubot*: o *Mabot*: al inicio del mensaje
-            let cleanText = textContent.value.replace(/^\*[A-Za-z]+\*:\s?/, '');
+            // Limpiar prefijo tipo *Laubot*: o *Mabot*: (mayúsculas, minúsculas, tildes, etc.) al inicio del mensaje
+            let cleanText = textContent.value.replace(/^\*[a-záéíóúüñ]+\*:\s?/i, '');
             setMessages(prev => [
               ...prev,
               {
