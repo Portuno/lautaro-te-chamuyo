@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { MessageCircle, Calendar, Brain, Sparkles, ArrowRight } from 'lucide-react';
 import AuthModal from '../components/AuthModal';
 import PersonalizedWelcome from '../components/PersonalizedWelcome';
+import NewsletterSubscription from '../components/NewsletterSubscription';
 
 const Index = () => {
   const { isAuthenticated, profile } = useAuth();
@@ -106,6 +108,16 @@ const Index = () => {
                 Gestión de calendario, recordatorios y ayuda para organizar tu vida con estilo.
               </p>
             </Link>
+          </div>
+
+          {/* Newsletter Section - Always visible */}
+          <div className="mb-16">
+            <NewsletterSubscription 
+              sourcePage="home"
+              className="max-w-2xl mx-auto"
+              title="¡Mantente al día con Lautaro!"
+              description="Recibe las últimas actualizaciones, nuevas funciones y consejos exclusivos directamente en tu email."
+            />
           </div>
 
           {/* CTA Section - Show for non-authenticated users */}
