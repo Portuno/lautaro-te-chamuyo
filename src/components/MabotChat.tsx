@@ -1,7 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { AsyncMabotClient, MabotError } from '../lib/mabotclient';
-import { UpdateOut } from '../lib/update';
-import { API_BASE_URL } from '../config';
 import { FALLBACK_RESPONSES, detectIntent, getRandomResponse } from '../lib/fallbackResponses';
 import ChatHeader from './ChatHeader';
 import ChatSidebar from './ChatSidebar';
@@ -24,7 +21,6 @@ const STORAGE_KEYS = {
 } as const;
 
 export function MabotChat() {
-  const [client, setClient] = useState<AsyncMabotClient | null>(null);
   const [messages, setMessages] = useState<Message[]>(() => {
     const storedMessages = sessionStorage.getItem(STORAGE_KEYS.MESSAGES);
     if (storedMessages) {
@@ -47,7 +43,7 @@ export function MabotChat() {
   const [chatId, setChatId] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(true);
   const [useFallback, setUseFallback] = useState(false);
   const [ansiosaSequence, setAnsiosaSequence] = useState<'idle' | 'typing1' | 'pause' | 'typing2'>('idle');
   const [showDebugInfo, setShowDebugInfo] = useState(false);
@@ -106,63 +102,6 @@ export function MabotChat() {
     }, 3000);
   }, []);
 
-  const initializeClient = useCallback(async () => {
-    try {
-      const username = import.meta.env.VITE_MABOT_USERNAME;
-      const password = import.meta.env.VITE_MABOT_PASSWORD;
-      
-      console.log('Credenciales:', { 
-        username: username ? 'presente' : 'ausente',
-        password: password ? 'presente' : 'ausente',
-        baseUrl: API_BASE_URL
-      });
-      
-      if (!username || !password) {
-        console.log('Faltan credenciales, activando modo demo');
-        setUseFallback(true);
-        setIsInitialized(true);
-        return;
-      }
-
-      console.log('Inicializando cliente Mabot...');
-      const mabotClient = new AsyncMabotClient({
-        baseUrl: API_BASE_URL,
-        username,
-        password,
-        timeout: 30000,
-      });
-      
-      console.log('Cargando token...');
-      await mabotClient.loadToken();
-      console.log('Cliente Mabot inicializado correctamente');
-      
-      setClient(mabotClient);
-      setIsInitialized(true);
-      setError(null);
-    } catch (err) {
-      console.error('Error al inicializar cliente:', err);
-      if (err instanceof MabotError) {
-        if (err.status === 401) {
-          setError('Credenciales inválidas. Por favor, verifica tu usuario y contraseña.');
-        } else if (err.status === 408) {
-          setError('Tiempo de conexión agotado. Por favor, intenta nuevamente.');
-        } else if (err.status === 0) {
-          setError('Error de conexión. Por favor, verifica tu conexión a internet.');
-        } else {
-          setError(`Error al inicializar: ${err.message}`);
-        }
-      } else {
-        setError('Error inesperado al inicializar el cliente.');
-      }
-      setUseFallback(true);
-      setIsInitialized(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    initializeClient();
-  }, [initializeClient]);
-
   const handleSendMessage = async (input: string, options?: { isQuickAction?: boolean }) => {
     if (!input.trim() || isTyping || !chatId) {
       console.log('No se puede enviar mensaje:', { 
@@ -172,12 +111,8 @@ export function MabotChat() {
       });
       return;
     }
-    
-    console.log('Enviando mensaje con chatId:', chatId, 'y bot: laubot');
     setIsTyping(true);
     setError(null);
-    
-    // Add user message
     setMessages(prev => [
       ...prev,
       {
@@ -187,97 +122,29 @@ export function MabotChat() {
       }
     ]);
 
-    // Fallback logic
-    if (useFallback || !client) {
-      setTimeout(() => {
-        const intent = detectIntent(input);
-        // If quick action, always use natural response
-        if (options?.isQuickAction) {
-          let response: string;
-          if (intent === 'ideas') {
-            response = getRandomResponse(FALLBACK_RESPONSES.ideas);
-          } else if (intent === 'motivation') {
-            response = getRandomResponse(FALLBACK_RESPONSES.motivation);
-          } else if (intent === 'relax') {
-            response = getRandomResponse(FALLBACK_RESPONSES.relax);
-          } else if (intent === 'flirty') {
-            response = getRandomResponse(FALLBACK_RESPONSES.flirty);
-          } else if (intent === 'greetings') {
-            response = getRandomResponse(FALLBACK_RESPONSES.greetings);
-          } else {
-            response = getRandomResponse(FALLBACK_RESPONSES.default);
-          }
-          setMessages(prev => [
-            ...prev,
-            {
-              sender: 'lautaro',
-              content: response,
-              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            }
-          ]);
-          setIsTyping(false);
-          return;
-        }
-        // If user asks about Mabot/credenciales/premium, show link
-        if (intent === 'mabot') {
-          const response = getRandomResponse(FALLBACK_RESPONSES.mabot);
-          setMessages(prev => [
-            ...prev,
-            {
-              sender: 'lautaro',
-              content: response,
-              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-              isHtml: true
-            }
-          ]);
-          setIsTyping(false);
-          return;
-        }
-        // For any other free question, mention credentials
-        setMessages(prev => [
-          ...prev,
-          {
-            sender: 'lautaro',
-            content: 'Para poder ayudarte con eso, necesito que configures mis credenciales de Mabot.',
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-          }
-        ]);
-        setIsTyping(false);
-      }, Math.random() * 500 + 800);
-      return;
-    }
-    
     try {
-      // Siempre usar Laubot
-      const response: UpdateOut = await client.sendMessage(chatId, input, { 
-        bot_username: 'laubot'
+      const response = await fetch('/api/mabot-proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: input })
       });
-      
-      // Procesar la respuesta
-      if (response.messages && response.messages.length > 0) {
-        const assistantMessage = response.messages[response.messages.length - 1];
-        if (assistantMessage) {
-          const textContent = assistantMessage.contents.find(c => c.type === 'text');
-          if (textContent) {
-            // Limpiar prefijo tipo *Laubot*: o *Mabot*: (mayúsculas, minúsculas, tildes, etc.) al inicio del mensaje
-            let cleanText = textContent.value.replace(/^\*[a-záéíóúüñ]+\*:\s?/i, '');
-            setMessages(prev => [
-              ...prev,
-              {
-                sender: 'lautaro',
-                content: cleanText,
-                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-              }
-            ]);
-          }
-        }
+      if (!response.ok) {
+        throw new Error('Error comunicando con el bot');
       }
+      const data = await response.json();
+      const botMessage = data?.messages?.[0]?.contents?.[0]?.value || 'Sin respuesta del bot.';
+      setMessages(prev => [
+        ...prev,
+        {
+          sender: 'lautaro',
+          content: botMessage,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }
+      ]);
+      setUseFallback(false);
     } catch (error) {
-      console.error('Error al enviar mensaje:', error);
-      const errorMessage = error instanceof MabotError
-        ? error.message
-        : 'An error occurred while sending the message';
-      setError(errorMessage);
+      setError('Error al comunicarse con el bot.');
+      setUseFallback(true);
     } finally {
       setIsTyping(false);
     }
