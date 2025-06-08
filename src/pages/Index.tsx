@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -37,8 +36,7 @@ const Index = () => {
                   Tu asistente con alma
                 </h1>
                 <p className="text-lg sm:text-xl text-vino/80 mb-8 leading-relaxed">
-                  Más que un chat, es una conexión. Lautaro combina inteligencia artificial 
-                  con carisma argentino para acompañarte, organizarte y hacerte sonreír.
+                  Lautaro es un carismático asistente hecho para para acompañarte, organizarte y hacerte sonreír.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <button
