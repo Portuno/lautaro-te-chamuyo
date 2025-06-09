@@ -129,9 +129,37 @@ export function MabotChat() {
 
     try {
       console.log('🤖 MabotChat: Intentando enviar mensaje a MABOT...');
-      // Intentar usar MABOT primero
-      const response = await sendMabotMessage(chatId, input, 'laubot');
-      const botMessage = response?.messages?.[0]?.contents?.[0]?.value || 'Sin respuesta del bot.';
+      
+      // Detectar si tenemos credenciales VITE_ (desarrollo) o usar proxy (producción)
+      const hasViteCredentials = import.meta.env.VITE_MABOT_USERNAME && import.meta.env.VITE_MABOT_PASSWORD;
+      
+      let response, botMessage;
+      
+      if (hasViteCredentials) {
+        console.log('🔧 Usando cliente directo (desarrollo)');
+        // Usar cliente directo en desarrollo
+        response = await sendMabotMessage(chatId, input, 'laubot');
+        botMessage = response?.messages?.[0]?.contents?.[0]?.value || 'Sin respuesta del bot.';
+      } else {
+        console.log('🔒 Usando proxy seguro (producción)');
+        // Usar proxy seguro en producción
+        const proxyResponse = await fetch('/api/mabot-secure', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            chatId, 
+            message: input, 
+            botUsername: 'laubot' 
+          })
+        });
+
+        if (!proxyResponse.ok) {
+          throw new Error(`Error HTTP: ${proxyResponse.status}`);
+        }
+
+        response = await proxyResponse.json();
+        botMessage = response?.messages?.[0]?.contents?.[0]?.value || 'Sin respuesta del bot.';
+      }
       
       console.log('✅ MabotChat: Respuesta exitosa de MABOT');
       setMessages(prev => [
