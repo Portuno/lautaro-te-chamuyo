@@ -1,12 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { FALLBACK_RESPONSES, detectIntent, getRandomResponse } from '../lib/fallbackResponses';
 import { useMabot } from '../hooks/useMabot';
+import { useAuth } from '../hooks/useAuth';
 import ChatHeader from './ChatHeader';
 import ChatSidebar from './ChatSidebar';
 import ChatMessageBubble from './ChatMessageBubble';
 import ChatInput from './ChatInput';
 import QuickActionsBar from './QuickActionsBar';
 import TypingIndicator from './TypingIndicator';
+import AuthModal from './AuthModal';
 
 interface Message {
   sender: 'user' | 'lautaro';
@@ -20,6 +22,8 @@ const STORAGE_KEYS = {
   MESSAGES: 'chatMessages',
   CURRENT_BOT: 'currentBot'
 } as const;
+
+const MAX_MESSAGES_WITHOUT_AUTH = 3;
 
 export function MabotChat() {
   const [messages, setMessages] = useState<Message[]>(() => {
@@ -48,14 +52,26 @@ export function MabotChat() {
   const [useFallback, setUseFallback] = useState(false);
   const [ansiosaSequence, setAnsiosaSequence] = useState<'idle' | 'typing1' | 'pause' | 'typing2'>('idle');
   const [showDebugInfo, setShowDebugInfo] = useState(false);
+  const [messageCount, setMessageCount] = useState(0);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authModalTab, setAuthModalTab] = useState<'login' | 'register'>('login');
   
   // Hook para manejar la comunicación con MABOT
   const { sendMessage: sendMabotMessage, isLoading: mabotLoading, error: mabotError, isConnected } = useMabot();
+  const { isAuthenticated, profile } = useAuth();
 
   // Persistir mensajes en sessionStorage cuando cambian
   useEffect(() => {
     sessionStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(messages));
   }, [messages]);
+
+  // Reiniciar contador de mensajes cuando el usuario se autentica
+  useEffect(() => {
+    if (isAuthenticated) {
+      setMessageCount(0);
+      console.log('✅ Usuario autenticado, contador de mensajes reiniciado');
+    }
+  }, [isAuthenticated]);
 
   // Generar un chatId único al montar el componente
   useEffect(() => {
@@ -115,9 +131,41 @@ export function MabotChat() {
       });
       return;
     }
+
+    // Verificar límite de mensajes para usuarios no autenticados
+    if (!isAuthenticated && messageCount >= MAX_MESSAGES_WITHOUT_AUTH) {
+      console.log('🚫 Límite de mensajes alcanzado para usuario no autenticado');
+      setMessages(prev => [
+        ...prev,
+        {
+          sender: 'user',
+          content: input,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        },
+        {
+          sender: 'lautaro',
+          content: 'Demasiados mensajes y yo ni te conozco, no te querés registrar?',
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        }
+      ]);
+      
+      // Mostrar modal de auth después de un breve delay
+      setTimeout(() => {
+        setAuthModalTab('register');
+        setShowAuthModal(true);
+      }, 1000);
+      
+      return;
+    }
     
     setIsTyping(true);
     setError(null);
+    
+    // Incrementar contador de mensajes para usuarios no autenticados
+    if (!isAuthenticated) {
+      setMessageCount(prev => prev + 1);
+    }
+    
     setMessages(prev => [
       ...prev,
       {
@@ -159,6 +207,11 @@ export function MabotChat() {
 
         response = await proxyResponse.json();
         botMessage = response?.messages?.[0]?.contents?.[0]?.value || 'Sin respuesta del bot.';
+      }
+      
+      // Limpiar mensaje: remover prefijos como "Laubot:", "laubot:", etc.
+      if (botMessage) {
+        botMessage = botMessage.replace(/^(Laubot|laubot):\s*/i, '').trim();
       }
       
       console.log('✅ MabotChat: Respuesta exitosa de MABOT');
@@ -238,6 +291,26 @@ export function MabotChat() {
                 </p>
               </div>
             )}
+            
+            {!isAuthenticated && messageCount > 0 && messageCount < MAX_MESSAGES_WITHOUT_AUTH && (
+              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 text-blue-800 rounded-lg text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-lg">👋</span>
+                  <span>
+                    Te quedan <strong>{MAX_MESSAGES_WITHOUT_AUTH - messageCount}</strong> mensajes gratis.{' '}
+                    <button
+                      onClick={() => {
+                        setAuthModalTab('register');
+                        setShowAuthModal(true);
+                      }}
+                      className="text-vino hover:underline font-semibold"
+                    >
+                      ¡Registrate acá!
+                    </button>
+                  </span>
+                </div>
+              </div>
+            )}
             <button
               onClick={startNewConversation}
               className="text-vino dark:text-beige text-sm hover:underline mb-4"
@@ -309,6 +382,13 @@ export function MabotChat() {
           </div>
         </div>
       </div>
+      
+      {/* Modal de autenticación */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        defaultTab={authModalTab}
+      />
     </div>
   );
 } 
