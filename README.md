@@ -58,8 +58,7 @@ npm install
 cp .env.example .env
 
 # Edita .env con tus credenciales:
-VITE_SUPABASE_URL=https://tu-proyecto.supabase.co
-VITE_SUPABASE_ANON_KEY=tu_clave_publica_anonima
+VITE_API_BASE_URL=https://tu-dominio-api.com
 VITE_MABOT_USERNAME=tu_usuario_mabot
 VITE_MABOT_PASSWORD=tu_password_mabot
 ```

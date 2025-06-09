@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { FALLBACK_RESPONSES, detectIntent, getRandomResponse } from '../lib/fallbackResponses';
+import { useMabot } from '../hooks/useMabot';
 import ChatHeader from './ChatHeader';
 import ChatSidebar from './ChatSidebar';
 import ChatMessageBubble from './ChatMessageBubble';
@@ -47,6 +48,9 @@ export function MabotChat() {
   const [useFallback, setUseFallback] = useState(false);
   const [ansiosaSequence, setAnsiosaSequence] = useState<'idle' | 'typing1' | 'pause' | 'typing2'>('idle');
   const [showDebugInfo, setShowDebugInfo] = useState(false);
+  
+  // Hook para manejar la comunicación con MABOT
+  const { sendMessage: sendMabotMessage, isLoading: mabotLoading, error: mabotError, isConnected } = useMabot();
 
   // Persistir mensajes en sessionStorage cuando cambian
   useEffect(() => {
@@ -111,6 +115,7 @@ export function MabotChat() {
       });
       return;
     }
+    
     setIsTyping(true);
     setError(null);
     setMessages(prev => [
@@ -123,16 +128,12 @@ export function MabotChat() {
     ]);
 
     try {
-      const response = await fetch('/api/mabot-proxy', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: input })
-      });
-      if (!response.ok) {
-        throw new Error('Error comunicando con el bot');
-      }
-      const data = await response.json();
-      const botMessage = data?.messages?.[0]?.contents?.[0]?.value || 'Sin respuesta del bot.';
+      console.log('🤖 MabotChat: Intentando enviar mensaje a MABOT...');
+      // Intentar usar MABOT primero
+      const response = await sendMabotMessage(chatId, input, 'laubot');
+      const botMessage = response?.messages?.[0]?.contents?.[0]?.value || 'Sin respuesta del bot.';
+      
+      console.log('✅ MabotChat: Respuesta exitosa de MABOT');
       setMessages(prev => [
         ...prev,
         {
@@ -143,15 +144,33 @@ export function MabotChat() {
       ]);
       setUseFallback(false);
     } catch (error) {
-      setError('Error al comunicarse con el bot.');
+      console.error('❌ MabotChat: Error comunicando con MABOT, usando respuesta de fallback:', error);
+      
+      // Usar respuesta de fallback cuando MABOT no esté disponible
+      const intent = detectIntent(input);
+      const fallbackResponse = getRandomResponse(FALLBACK_RESPONSES[intent]);
+      
+      console.log('🔄 MabotChat: Usando respuesta de fallback:', { intent, response: fallbackResponse.substring(0, 100) });
+      setMessages(prev => [
+        ...prev,
+        {
+          sender: 'lautaro',
+          content: fallbackResponse,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          isHtml: true
+        }
+      ]);
       setUseFallback(true);
+      
+      // Limpiar error después de usar fallback
+      setTimeout(() => setError(null), 3000);
     } finally {
       setIsTyping(false);
     }
   };
 
   // Block input if typing or ansiosaSequence is active
-  const inputBlocked = isTyping || ansiosaSequence === 'typing1' || ansiosaSequence === 'typing2';
+  const inputBlocked = isTyping || mabotLoading || ansiosaSequence === 'typing1' || ansiosaSequence === 'typing2';
 
   if (!isInitialized) {
     return (
@@ -230,6 +249,8 @@ export function MabotChat() {
           {showDebugInfo && (
             <div className="px-2 py-1 bg-sand/80 dark:bg-[#2e1e21]/70 border-t border-beige/60 text-xs text-vino/70 dark:text-beige/70 font-mono">
               <div>ChatId: {chatId}</div>
+              <div>MABOT: {isConnected ? '🟢 Conectado' : '🔴 Desconectado'}</div>
+              <div>Modo: {useFallback ? 'Demo/Fallback' : 'MABOT'}</div>
             </div>
           )}
           <QuickActionsBar onSendMessage={handleSendMessage} />
