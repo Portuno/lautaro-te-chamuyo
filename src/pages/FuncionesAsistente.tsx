@@ -1,11 +1,10 @@
-
 import { CheckCircle, UserCheck, AtSign, BookOpen, ClipboardList, CalendarDays, Globe2, MessageCircle, PiggyBank, Users, FileText, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const CATEGORIES = [
   {
     title: "Soporte administrativo",
-    icon: <ClipboardList className="text-coral mr-2" size={22} />,
+    icon: <ClipboardList className="text-coral mr-2" size={20} />,
     tasks: [
       "Agendar reuniones o eventos importantes",
       "Gestionar mails y ayudarte a priorizarlos",
@@ -19,7 +18,7 @@ const CATEGORIES = [
   },
   {
     title: "Atención al cliente",
-    icon: <UserCheck className="text-vino mr-2" size={22} />,
+    icon: <UserCheck className="text-vino mr-2" size={20} />,
     tasks: [
       "Responder preguntas frecuentes automáticamente",
       "Derivar consultas complejas a personas del equipo",
@@ -32,7 +31,7 @@ const CATEGORIES = [
   },
   {
     title: "Gestión de redes sociales",
-    icon: <AtSign className="text-coral mr-2" size={22} />,
+    icon: <AtSign className="text-coral mr-2" size={20} />,
     tasks: [
       "Programar publicaciones en Instagram, Facebook o X",
       "Redactar copies atractivos y creativos",
@@ -45,7 +44,7 @@ const CATEGORIES = [
   },
   {
     title: "Marketing y creación de contenido",
-    icon: <BookOpen className="text-vino mr-2" size={22} />,
+    icon: <BookOpen className="text-vino mr-2" size={20} />,
     tasks: [
       "Proponer ideas originales para campañas",
       "Escribir borradores de artículos, guiones o posts",
@@ -58,7 +57,7 @@ const CATEGORIES = [
   },
   {
     title: "Investigación",
-    icon: <Globe2 className="text-coral mr-2" size={22} />,
+    icon: <Globe2 className="text-coral mr-2" size={20} />,
     tasks: [
       "Buscar información o recursos en internet",
       "Consultar tendencias del sector",
@@ -71,7 +70,7 @@ const CATEGORIES = [
   },
   {
     title: "Gestión de proyectos y eventos",
-    icon: <CalendarDays className="text-vino mr-2" size={22} />,
+    icon: <CalendarDays className="text-vino mr-2" size={20} />,
     tasks: [
       "Crear y actualizar listas de tareas por proyecto",
       "Hacer seguimiento de deadlines",
@@ -84,7 +83,7 @@ const CATEGORIES = [
   },
   {
     title: "Tareas técnicas y creativas",
-    icon: <Layers className="text-coral mr-2" size={22} />,
+    icon: <Layers className="text-coral mr-2" size={20} />,
     tasks: [
       "Edición básica de imágenes y PDFs",
       "Ideas para diseño web o presentaciones",
@@ -97,7 +96,7 @@ const CATEGORIES = [
   },
   {
     title: "Finanzas y ventas",
-    icon: <PiggyBank className="text-vino mr-2" size={22} />,
+    icon: <PiggyBank className="text-vino mr-2" size={20} />,
     tasks: [
       "Armar pequeños reportes de gastos",
       "Gestionar presupuestos o cobrar clientes",
@@ -110,7 +109,7 @@ const CATEGORIES = [
   },
   {
     title: "Reclutamiento y RR.HH.",
-    icon: <Users className="text-coral mr-2" size={22} />,
+    icon: <Users className="text-coral mr-2" size={20} />,
     tasks: [
       "Redactar descripciones de puestos",
       "Filtrar CVs según tus criterios",
@@ -123,7 +122,7 @@ const CATEGORIES = [
   },
   {
     title: "Transcripción y traducción",
-    icon: <FileText className="text-vino mr-2" size={22} />,
+    icon: <FileText className="text-vino mr-2" size={20} />,
     tasks: [
       "Transcribir audios o videos a texto",
       "Traducir mensajes, documentos o mails simples",
@@ -136,7 +135,7 @@ const CATEGORIES = [
   },
   {
     title: "Tareas varias",
-    icon: <CheckCircle className="text-coral mr-2" size={22} />,
+    icon: <CheckCircle className="text-coral mr-2" size={20} />,
     tasks: [
       "Llevar listas y checklists de cualquier tipo",
       "Ayudar a buscar lugares cercanos o servicios",
@@ -150,55 +149,77 @@ const CATEGORIES = [
 ];
 
 const FuncionesAsistente = () => (
-  <div className="bg-sand min-h-screen flex flex-col">
-    <section className="w-full bg-gradient-to-br from-terracota to-coral py-14 px-4 flex flex-col items-center justify-center shadow-md rounded-b-3xl animate-fade-in">
-      <h1 className="text-4xl md:text-5xl font-bold mb-4 text-beige drop-shadow font-quicksand text-center leading-tight" style={{letterSpacing: "-0.02em"}}>
-        Todo lo que Lautaro puede hacer por vos
-      </h1>
-      <p className="text-xl text-beige mb-2 text-center max-w-2xl font-quicksand">
-        No solo es eficiente: Lautaro te acompaña todo el día con calidez y una vuelta porteña que te saca una sonrisa, incluso cuando hay mucho por hacer.
-      </p>
-      <p className="text-lg text-beige mb-2 text-center max-w-xl font-quicksand opacity-90">
-        Conocé cada una de sus funciones pensadas para facilitarte la vida en el trabajo, en casa o en el día a día.
-      </p>
+  <div className="bg-gradient-to-br from-beige via-sand to-[#ffd6c0] dark:from-[#201016] dark:to-[#442134] min-h-screen">
+    {/* Compact Header */}
+    <section className="w-full bg-gradient-to-r from-vino to-terracota py-12 px-4 shadow-lg">
+      <div className="max-w-4xl mx-auto text-center">
+        <h1 className="text-3xl md:text-4xl font-bold mb-3 text-beige font-quicksand">
+          Todo lo que Lautaro puede hacer por vos
+        </h1>
+        <p className="text-lg text-beige/90 max-w-2xl mx-auto leading-relaxed">
+          No solo es eficiente: Lautaro te acompaña todo el día con calidez y una vuelta porteña que te saca una sonrisa, incluso cuando hay mucho por hacer.
+        </p>
+      </div>
     </section>
 
-    <section className="flex-1 w-full max-w-4xl mx-auto px-4 py-12">
-      <div className="grid gap-10">
+    {/* Functions Grid */}
+    <section className="max-w-6xl mx-auto px-4 py-8">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {CATEGORIES.map((cat, i) => (
-          <div key={i} className="bg-white rounded-2xl shadow-lg p-7 md:p-9 border border-beige animate-fade-in">
-            <div className="flex items-center mb-2">
+          <div key={i} className="bg-white/95 dark:bg-[#2e1e21]/95 rounded-xl shadow-lg p-5 border border-gray-100 dark:border-gray-700 backdrop-blur-sm hover:shadow-xl transition-all duration-200 hover:scale-[1.02]">
+            {/* Header */}
+            <div className="flex items-center mb-3">
               {cat.icon}
-              <h2 className="text-2xl font-bold text-vino font-quicksand">{cat.title}</h2>
+              <h2 className="text-lg font-bold text-vino dark:text-beige font-quicksand">{cat.title}</h2>
             </div>
-            <ul className="list-disc ml-8 text-vino/95 text-base mb-5 space-y-1">
+            
+            {/* Tasks List */}
+            <ul className="text-sm text-gray-700 dark:text-gray-300 mb-4 space-y-1">
               {cat.tasks.map((task, j) => (
-                <li key={j}>{task}</li>
+                <li key={j} className="flex items-start">
+                  <span className="text-coral mr-2 text-xs mt-1">•</span>
+                  <span>{task}</span>
+                </li>
               ))}
             </ul>
-            <div className="bg-sand/60 rounded-xl px-4 py-3 flex flex-col sm:flex-row gap-3 items-start mb-2">
-              <div className="flex items-start gap-2 flex-1">
-                <div className="w-7 h-7 rounded-full bg-coral flex items-center justify-center font-bold text-beige text-lg">Vos</div>
-                <div className="rounded-xl px-2 py-1 bg-beige text-vino text-sm flex-1">{cat.example.user}</div>
+            
+            {/* Example Dialog */}
+            <div className="bg-gray-50 dark:bg-[#3e2e31] rounded-lg p-3 space-y-2">
+              <div className="flex items-start gap-2">
+                <div className="w-5 h-5 rounded-full bg-coral flex items-center justify-center text-white text-xs font-bold">V</div>
+                <div className="bg-white dark:bg-[#4e3e41] rounded-lg px-2 py-1 text-xs text-gray-700 dark:text-gray-300 flex-1">
+                  {cat.example.user}
+                </div>
               </div>
-              <div className="flex items-start gap-2 flex-1">
-                <div className="w-7 h-7 rounded-full bg-vino flex items-center justify-center font-bold text-beige text-lg">L</div>
-                <div className="rounded-xl px-2 py-1 bg-sand text-terracota text-sm flex-1">{cat.example.lautaro}</div>
+              <div className="flex items-start gap-2">
+                <div className="w-5 h-5 rounded-full bg-vino flex items-center justify-center text-white text-xs font-bold">L</div>
+                <div className="bg-sand dark:bg-[#5e4e51] rounded-lg px-2 py-1 text-xs text-terracota dark:text-beige flex-1">
+                  {cat.example.lautaro}
+                </div>
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="flex justify-center mt-14">
-        <Button
-          asChild
-          className="bg-vino hover:bg-terracota transition-colors px-10 py-5 rounded-full text-beige text-lg font-semibold shadow-lg hover:scale-105 font-quicksand text-xl"
-        >
-          <a href="/#demo">
-            Probalo gratis
-          </a>
-        </Button>
+      {/* CTA Section */}
+      <div className="text-center mt-12">
+        <div className="bg-white/90 dark:bg-[#2e1e21]/90 rounded-2xl shadow-xl p-8 max-w-md mx-auto backdrop-blur-sm">
+          <h3 className="text-xl font-bold text-vino dark:text-beige mb-3">
+            ¿Te copa probarlo?
+          </h3>
+          <p className="text-gray-600 dark:text-gray-300 mb-5 text-sm">
+            Empezá a usar Lautaro gratis y descubrí cómo puede ayudarte en tu día a día.
+          </p>
+          <Button
+            asChild
+            className="bg-vino hover:bg-terracota transition-all px-8 py-3 rounded-xl text-white font-semibold shadow-lg hover:scale-105 duration-200"
+          >
+            <a href="/#demo">
+              Probalo gratis
+            </a>
+          </Button>
+        </div>
       </div>
     </section>
   </div>

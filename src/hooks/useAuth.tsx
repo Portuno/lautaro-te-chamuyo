@@ -62,23 +62,56 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     });
   }, [authState.loading, authState.isAuthenticated, authState.user, authState.profile]);
 
-  // Función para cargar el perfil del usuario
+  // Función para cargar o crear el perfil del usuario
   const loadUserProfile = async (userId: string): Promise<UserProfile | null> => {
     try {
+      console.log('🔍 Loading profile for user:', userId);
+      
+      // Intentar cargar el perfil existente
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
         .eq('user_id', userId)
         .single();
 
-      if (error) {
+      if (error && error.code === 'PGRST116') {
+        // Perfil no existe, intentar crearlo automáticamente
+        console.log('📝 Profile not found, creating new profile for user:', userId);
+        
+        // Obtener datos del usuario de auth.users
+        const { data: authUser } = await supabase.auth.getUser();
+        
+        const newProfile = {
+          user_id: userId,
+          full_name: authUser?.user?.user_metadata?.full_name || authUser?.user?.email || 'Usuario',
+          chamuyo_level: 1,
+          total_points: 0,
+          subscription_status: 'free',
+          onboarding_completed: false
+        };
+
+        const { data: createdProfile, error: createError } = await supabase
+          .from('user_profiles')
+          .insert(newProfile)
+          .select()
+          .single();
+
+        if (createError) {
+          console.log('❌ Error creating profile:', createError);
+          return null;
+        }
+
+        console.log('✅ Profile created successfully:', createdProfile);
+        return createdProfile as UserProfile;
+      } else if (error) {
         console.log('❌ Error loading profile:', error);
         return null;
       }
 
+      console.log('✅ Profile loaded successfully');
       return data as UserProfile;
     } catch (error) {
-      console.log('❌ Exception loading profile:', error);
+      console.log('❌ Exception loading/creating profile:', error);
       return null;
     }
   };

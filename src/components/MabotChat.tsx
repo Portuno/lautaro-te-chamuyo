@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { FALLBACK_RESPONSES, detectIntent, getRandomResponse } from '../lib/fallbackResponses';
+import { getRandomFarewell, getTimeBasedFarewell } from '../lib/dailyLimitResponses';
 import { useMabot } from '../hooks/useMabot';
 import { useAuth } from '../hooks/useAuth';
 import ChatHeader from './ChatHeader';
@@ -157,6 +158,63 @@ export function MabotChat() {
       
       return;
     }
+
+    // Verificar límite diario para usuarios autenticados (7 mensajes para nivel 1)
+    if (isAuthenticated && profile) {
+      try {
+        const DAILY_LIMIT = 7; // Por ahora, 7 mensajes para todos
+        
+        // Contar mensajes de hoy en sessionStorage
+        const today = new Date().toDateString();
+        const dailyKey = `dailyMessages_${profile.id}_${today}`;
+        const todayMessages = parseInt(sessionStorage.getItem(dailyKey) || '0');
+        
+        console.log('📊 Daily limit check:', { todayMessages, limit: DAILY_LIMIT });
+        
+        if (todayMessages >= DAILY_LIMIT) {
+          // Usuario ya alcanzó el límite diario - no responder
+          console.log('🚫 Límite diario alcanzado - mensaje ignorado');
+          setMessages(prev => [
+            ...prev,
+            {
+              sender: 'user',
+              content: input,
+              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            }
+          ]);
+          return; // No hay respuesta de Lautaro
+        }
+        
+        if (todayMessages === DAILY_LIMIT - 1) {
+          // Es el último mensaje (mensaje #7) - respuesta de despedida
+          console.log('👋 Último mensaje del día - enviando despedida');
+          
+          sessionStorage.setItem(dailyKey, (todayMessages + 1).toString());
+          
+          setMessages(prev => [
+            ...prev,
+            {
+              sender: 'user',
+              content: input,
+              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            },
+            {
+              sender: 'lautaro',
+              content: getTimeBasedFarewell(profile.preferred_name || profile.full_name),
+              time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            }
+          ]);
+          return;
+        }
+        
+        // Incrementar contador para mensaje normal
+        sessionStorage.setItem(dailyKey, (todayMessages + 1).toString());
+        
+      } catch (error) {
+        console.error('Error verificando límite diario:', error);
+        // Si hay error, continuar con el mensaje normal
+      }
+    }
     
     setIsTyping(true);
     setError(null);
@@ -311,6 +369,34 @@ export function MabotChat() {
                 </div>
               </div>
             )}
+            
+            {/* Indicador de límite diario para usuarios autenticados */}
+            {isAuthenticated && profile && (() => {
+              const today = new Date().toDateString();
+              const dailyKey = `dailyMessages_${profile.id}_${today}`;
+              const todayMessages = parseInt(sessionStorage.getItem(dailyKey) || '0');
+              const DAILY_LIMIT = 7;
+              const remaining = Math.max(0, DAILY_LIMIT - todayMessages);
+              
+              if (todayMessages > 0 && remaining > 0) {
+                return (
+                  <div className="mb-4 p-3 bg-green-50 border border-green-200 text-green-800 rounded-lg text-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">💬</span>
+                      <span>
+                        Te quedan <strong>{remaining}</strong> mensajes hoy.{' '}
+                        {remaining <= 2 && (
+                          <span className="text-orange-600 font-semibold">
+                            ¡Quedan pocos!
+                          </span>
+                        )}
+                      </span>
+                    </div>
+                  </div>
+                );
+              }
+              return null;
+            })()}
             <button
               onClick={startNewConversation}
               className="text-vino dark:text-beige text-sm hover:underline mb-4"

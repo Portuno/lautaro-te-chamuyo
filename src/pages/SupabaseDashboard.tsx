@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useLaubot } from '../hooks/useLaubot';
@@ -24,7 +23,15 @@ import {
   Plus,
   Loader2,
   AlertCircle,
-  MapPin
+  MapPin,
+  MessageSquare,
+  TrendingUp,
+  Mail,
+  Bell,
+  Target,
+  BarChart3,
+  BookOpen,
+  Heart
 } from 'lucide-react';
 
 const SupabaseDashboard = () => {
@@ -48,6 +55,40 @@ const SupabaseDashboard = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [supabaseEvents, setSupabaseEvents] = useState<any[]>([]);
   const [syncLoading, setSyncLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
+
+  // Get user's first name for greeting
+  const getUserFirstName = () => {
+    if (profile?.preferred_name) return profile.preferred_name;
+    if (profile?.full_name) {
+      const firstName = profile.full_name.split(' ')[0];
+      return firstName;
+    }
+    if (user?.email) {
+      const emailName = user.email.split('@')[0];
+      return emailName.charAt(0).toUpperCase() + emailName.slice(1);
+    }
+    return 'Usuario';
+  };
+
+  // Mock data for demonstration (will be replaced with real Google data)
+  const mockStats = {
+    totalMessages: 127,
+    weeklyMessages: 23,
+    dailyLimit: 7,
+    todayUsed: 3,
+    favoriteFeatures: ['Transcripción', 'Calendario', 'Ideas creativas'],
+    recentActivity: [
+      { type: 'message', content: 'Transcribiste un audio de 5 minutos', time: '2 horas' },
+      { type: 'calendar', content: 'Creaste reunión con el equipo', time: '1 día' },
+      { type: 'task', content: 'Completaste 3 tareas pendientes', time: '2 días' }
+    ],
+    upcomingEvents: [
+      { title: 'Reunión con cliente', time: 'Hoy 15:00', type: 'meeting' },
+      { title: 'Deadline proyecto X', time: 'Mañana', type: 'deadline' },
+      { title: 'Llamada con proveedores', time: 'Jueves 10:00', type: 'call' }
+    ]
+  };
 
   // Cargar eventos de Supabase cuando el usuario esté autenticado
   useEffect(() => {
@@ -130,34 +171,42 @@ const SupabaseDashboard = () => {
         <div className="container mx-auto py-16">
           <div className="text-center max-w-2xl mx-auto">
             <h1 className="text-4xl font-bold text-vino mb-6 font-quicksand">
-              🔐 Dashboard Integrado
+              🚀 Tu Centro de Control Personal
             </h1>
             <p className="text-xl text-vino/80 mb-8">
-              Accede a tu asistente personal con calendario sincronizado y persistencia en tiempo real.
+              Conectá con Google para sincronizar calendario, contactos y obtener insights personalizados de tu actividad con Lautaro.
             </p>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <Card>
-                <CardContent className="p-6 text-center">
-                  <User className="w-8 h-8 mx-auto mb-3 text-vino" />
-                  <h3 className="font-semibold text-vino mb-2">Autenticación</h3>
-                  <p className="text-sm text-vino/70">Login seguro con Supabase</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+              <Card className="border-none shadow-md">
+                <CardContent className="p-4 text-center">
+                  <Calendar className="w-8 h-8 mx-auto mb-2 text-vino" />
+                  <h3 className="font-semibold text-vino text-sm">Google Calendar</h3>
+                  <p className="text-xs text-vino/70">Sincronización automática</p>
                 </CardContent>
               </Card>
               
-              <Card>
-                <CardContent className="p-6 text-center">
-                  <Bot className="w-8 h-8 mx-auto mb-3 text-vino" />
-                  <h3 className="font-semibold text-vino mb-2">Bot Inteligente</h3>
-                  <p className="text-sm text-vino/70">Estados persistentes</p>
+              <Card className="border-none shadow-md">
+                <CardContent className="p-4 text-center">
+                  <BarChart3 className="w-8 h-8 mx-auto mb-2 text-vino" />
+                  <h3 className="font-semibold text-vino text-sm">Analytics</h3>
+                  <p className="text-xs text-vino/70">Insights de uso</p>
                 </CardContent>
               </Card>
               
-              <Card>
-                <CardContent className="p-6 text-center">
-                  <Calendar className="w-8 h-8 mx-auto mb-3 text-vino" />
-                  <h3 className="font-semibold text-vino mb-2">Calendario</h3>
-                  <p className="text-sm text-vino/70">Sincronización automática</p>
+              <Card className="border-none shadow-md">
+                <CardContent className="p-4 text-center">
+                  <Target className="w-8 h-8 mx-auto mb-2 text-vino" />
+                  <h3 className="font-semibold text-vino text-sm">Objetivos</h3>
+                  <p className="text-xs text-vino/70">Seguimiento diario</p>
+                </CardContent>
+              </Card>
+              
+              <Card className="border-none shadow-md">
+                <CardContent className="p-4 text-center">
+                  <Bot className="w-8 h-8 mx-auto mb-2 text-vino" />
+                  <h3 className="font-semibold text-vino text-sm">Asistente IA</h3>
+                  <p className="text-xs text-vino/70">Estado personalizado</p>
                 </CardContent>
               </Card>
             </div>
@@ -165,9 +214,9 @@ const SupabaseDashboard = () => {
             <Button 
               onClick={() => setShowAuthModal(true)}
               size="lg"
-              className="bg-vino hover:bg-vino/90 text-white px-8 py-3"
+              className="bg-vino hover:bg-vino/90 text-white px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transition-all"
             >
-              Iniciar Sesión
+              🔑 Acceder al Dashboard
             </Button>
           </div>
         </div>
@@ -181,205 +230,228 @@ const SupabaseDashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-beige to-sand">
-      <div className="container mx-auto py-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+    <div className="min-h-screen bg-gradient-to-br from-beige via-sand to-[#ffd6c0] dark:from-[#201016] dark:to-[#442134]">
+      <div className="container mx-auto py-6 px-4">
+        {/* Header Section */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8 gap-4">
           <div className="flex items-center gap-4">
-            <Avatar className="w-12 h-12">
+            <Avatar className="w-12 h-12 border-2 border-vino/20">
               <AvatarImage src={profile?.avatar_url} />
-              <AvatarFallback>
-                {profile?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
+              <AvatarFallback className="bg-vino text-white font-semibold">
+                {getUserFirstName().charAt(0).toUpperCase()}
               </AvatarFallback>
             </Avatar>
             <div>
-              <h1 className="text-2xl font-bold text-vino">
-                ¡Hola, {profile?.full_name || user?.email}!
+              <h1 className="text-2xl lg:text-3xl font-bold text-vino dark:text-beige">
+                ¡Hola, {getUserFirstName()}! 👋
               </h1>
-              <div className="flex items-center gap-2">
-                <Badge variant="outline">
+              <div className="flex items-center gap-3 mt-1">
+                <Badge variant="outline" className="text-xs">
                   Nivel {profile?.chamuyo_level || 1}
                 </Badge>
-                <Badge variant="outline">
+                <Badge variant="outline" className="text-xs">
                   {profile?.total_points || 0} puntos
                 </Badge>
+                <div className="flex items-center gap-1 text-sm text-gray-600 dark:text-gray-400">
+                  <MessageSquare className="w-4 h-4" />
+                  <span>{mockStats.todayUsed}/{mockStats.dailyLimit} mensajes hoy</span>
+                </div>
               </div>
             </div>
           </div>
           
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
-              <Settings className="w-4 h-4 mr-2" />
-              Configuración
+            <Button
+              onClick={handleSync}
+              disabled={syncLoading}
+              variant="outline"
+              size="sm"
+              className="text-xs"
+            >
+              {syncLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              ) : (
+                <RefreshCw className="w-4 h-4 mr-2" />
+              )}
+              Sincronizar
             </Button>
-            <Button variant="outline" size="sm" onClick={() => signOut()}>
+            
+            <Button
+              onClick={signOut}
+              variant="outline"
+              size="sm" 
+              className="text-xs text-red-600 border-red-200 hover:bg-red-50"
+            >
               <LogOut className="w-4 h-4 mr-2" />
               Salir
             </Button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Panel del Bot */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Bot className="w-5 h-5" />
-                Laubot - Estado del Asistente
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div className={`w-3 h-3 rounded-full ${botError ? 'bg-red-500' : botLoading ? 'bg-yellow-500' : 'bg-green-500'}`} />
-                <span className="text-sm">
-                  {botError ? 'Error' : botLoading ? 'Procesando...' : 'Listo'}
-                </span>
-              </div>
+        {/* Navigation Tabs */}
+        <div className="flex flex-wrap gap-2 mb-6 bg-white/50 dark:bg-gray-800/50 p-1 rounded-xl">
+          {[
+            { id: 'overview', label: 'Resumen', icon: Activity },
+            { id: 'calendar', label: 'Calendario', icon: Calendar },
+            { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+            { id: 'settings', label: 'Configuración', icon: Settings }
+          ].map(tab => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                  activeTab === tab.id
+                    ? 'bg-white dark:bg-gray-700 text-vino dark:text-beige shadow-sm'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-vino dark:hover:text-beige'
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
 
-              <div className="flex flex-wrap gap-2">
-                <Button 
-                  onClick={authenticateBot} 
-                  disabled={botLoading}
-                  size="sm"
-                >
-                  🔑 Autenticar Google
-                </Button>
-                <Button 
-                  onClick={() => listEvents()} 
-                  disabled={botLoading}
-                  size="sm"
-                  variant="outline"
-                >
-                  📅 Listar Eventos
-                </Button>
-                <Button 
-                  onClick={handleCreateEvent} 
-                  disabled={botLoading}
-                  size="sm"
-                  variant="outline"
-                >
-                  <Plus className="w-4 h-4 mr-1" />
-                  Crear Evento
-                </Button>
-              </div>
+        {/* Content based on active tab */}
+        {activeTab === 'overview' && (
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Stats Cards */}
+            <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              <Card className="border-none shadow-lg bg-gradient-to-r from-coral to-orange-400 text-white">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm opacity-90">Mensajes este mes</p>
+                      <p className="text-3xl font-bold">{mockStats.totalMessages}</p>
+                    </div>
+                    <MessageSquare className="w-8 h-8 opacity-80" />
+                  </div>
+                </CardContent>
+              </Card>
 
-              {botEvents.length > 0 && (
-                <div>
-                  <h4 className="font-medium mb-2">Eventos del Bot:</h4>
-                  <div className="space-y-2">
-                    {botEvents.slice(0, 3).map((event: any, index: number) => (
-                      <div key={index} className="p-2 bg-gray-50 rounded text-sm">
-                        <div className="font-medium">{event.summary}</div>
-                        {event.start?.dateTime && (
-                          <div className="text-gray-600 text-xs">
-                            {formatDateTime(event.start.dateTime)}
-                          </div>
-                        )}
-                      </div>
+              <Card className="border-none shadow-lg bg-gradient-to-r from-vino to-purple-500 text-white">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm opacity-90">Esta semana</p>
+                      <p className="text-3xl font-bold">{mockStats.weeklyMessages}</p>
+                    </div>
+                    <TrendingUp className="w-8 h-8 opacity-80" />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-none shadow-lg bg-gradient-to-r from-green-400 to-blue-500 text-white sm:col-span-2">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-semibold">Funciones más usadas</h3>
+                    <Star className="w-6 h-6" />
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {mockStats.favoriteFeatures.map((feature, index) => (
+                      <Badge key={index} variant="secondary" className="bg-white/20 text-white border-none">
+                        {feature}
+                      </Badge>
                     ))}
                   </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            </div>
 
-          {/* Panel de Calendario */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="w-5 h-5" />
-                Calendario Sincronizado
-                <Button 
-                  onClick={handleSync}
-                  disabled={syncLoading}
-                  size="sm"
-                  variant="ghost"
-                >
-                  <RefreshCw className={`w-4 h-4 ${syncLoading ? 'animate-spin' : ''}`} />
-                </Button>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {supabaseEvents.length === 0 ? (
-                <div className="text-center text-gray-500 py-8">
-                  <Calendar className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                  <p>No hay eventos guardados</p>
-                  <p className="text-sm">Sincroniza con Google Calendar o crea eventos nuevos</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {supabaseEvents.map((event) => (
-                    <Card key={event.id} className="hover:shadow-md transition-shadow">
-                      <CardContent className="p-4">
-                        <div className="flex items-start justify-between">
-                          <div className="space-y-1">
-                            <h4 className="font-medium text-vino">{event.title}</h4>
-                            {event.description && (
-                              <p className="text-sm text-gray-600">{event.description}</p>
-                            )}
-                            
-                            <div className="flex items-center gap-4 text-sm text-gray-500">
-                              <div className="flex items-center gap-1">
-                                <Clock className="w-4 h-4" />
-                                {formatDateTime(event.start_time)}
-                              </div>
-                              
-                              {event.location && (
-                                <div className="flex items-center gap-1">
-                                  <MapPin className="w-4 h-4" />
-                                  {event.location}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          
-                          <Badge variant={event.status === 'confirmed' ? 'default' : 'secondary'}>
-                            {event.status}
-                          </Badge>
-                        </div>
-                      </CardContent>
-                    </Card>
+            {/* Recent Activity */}
+            <Card className="border-none shadow-lg">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Clock className="w-5 h-5 text-vino" />
+                  Actividad Reciente
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 pt-0">
+                <div className="space-y-4">
+                  {mockStats.recentActivity.map((activity, index) => (
+                    <div key={index} className="flex items-start gap-3">
+                      <div className={`w-2 h-2 rounded-full mt-2 ${
+                        activity.type === 'message' ? 'bg-blue-500' :
+                        activity.type === 'calendar' ? 'bg-green-500' : 'bg-orange-500'
+                      }`} />
+                      <div className="flex-1">
+                        <p className="text-sm text-gray-900 dark:text-gray-100">{activity.content}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">Hace {activity.time}</p>
+                      </div>
+                    </div>
                   ))}
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
 
-        {/* Estadísticas */}
-        <div className="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Card>
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-vino">{supabaseEvents.length}</div>
-              <div className="text-sm text-gray-600">Eventos guardados</div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-vino">{profile?.chamuyo_level || 1}</div>
-              <div className="text-sm text-gray-600">Nivel actual</div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-vino">{profile?.total_points || 0}</div>
-              <div className="text-sm text-gray-600">Puntos totales</div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardContent className="p-4 text-center">
-              <div className="text-2xl font-bold text-vino">
-                {profile?.subscription_status === 'premium' ? '✨' : '🆓'}
-              </div>
-              <div className="text-sm text-gray-600">
-                {profile?.subscription_status === 'premium' ? 'Premium' : 'Gratis'}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+            {/* Upcoming Events */}
+            <Card className="border-none shadow-lg lg:col-span-3">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-vino" />
+                  Próximos Eventos
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-6 pt-0">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {mockStats.upcomingEvents.map((event, index) => (
+                    <div key={index} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                      <div className={`w-3 h-3 rounded-full ${
+                        event.type === 'meeting' ? 'bg-blue-500' :
+                        event.type === 'deadline' ? 'bg-red-500' : 'bg-green-500'
+                      }`} />
+                      <div className="flex-1">
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{event.title}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{event.time}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {activeTab === 'calendar' && (
+          <div className="text-center py-16">
+            <Calendar className="w-16 h-16 mx-auto mb-4 text-vino/50" />
+            <h3 className="text-xl font-semibold text-vino dark:text-beige mb-2">
+              Calendario Sincronizado
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Conectá con Google Calendar para ver y gestionar tus eventos aquí.
+            </p>
+            <Button className="bg-vino hover:bg-vino/90">
+              🔗 Conectar Google Calendar
+            </Button>
+          </div>
+        )}
+
+        {activeTab === 'analytics' && (
+          <div className="text-center py-16">
+            <BarChart3 className="w-16 h-16 mx-auto mb-4 text-vino/50" />
+            <h3 className="text-xl font-semibold text-vino dark:text-beige mb-2">
+              Analytics Avanzados
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Próximamente: insights detallados sobre tu productividad y uso de Lautaro.
+            </p>
+          </div>
+        )}
+
+        {activeTab === 'settings' && (
+          <div className="text-center py-16">
+            <Settings className="w-16 h-16 mx-auto mb-4 text-vino/50" />
+            <h3 className="text-xl font-semibold text-vino dark:text-beige mb-2">
+              Configuración
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-6">
+              Personalizá tu experiencia con Lautaro y gestiona integraciones.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

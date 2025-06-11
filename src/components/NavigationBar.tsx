@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Menu, X, User, LogOut, MessageSquare, Beaker, LayoutDashboard, Sparkles } from "lucide-react";
+import { Menu, X, User, LogOut, MessageSquare, Beaker, LayoutDashboard, Sparkles, Mail } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
@@ -17,6 +17,7 @@ const NavigationBar = () => {
     { href: "/laboratorio", label: "Laboratorio", icon: Beaker },
     { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
     { href: "/funciones", label: "Funciones", icon: Sparkles },
+    { href: "/contacto", label: "Contacto", icon: Mail },
   ];
 
   const isActive = (path: string) => location.pathname === path;
