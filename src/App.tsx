@@ -4,6 +4,7 @@ import { AuthProvider } from './hooks/useAuth';
 import { useOnboarding } from './hooks/useOnboarding';
 import OnboardingFlow from './components/OnboardingFlow';
 import NavigationBar from './components/NavigationBar';
+import Footer from './components/Footer';
 import Index from './pages/Index';
 import Chat from './pages/Chat';
 import Laboratorio from './pages/Laboratorio';
@@ -12,6 +13,7 @@ import SupabaseDashboard from './pages/SupabaseDashboard';
 import FuncionesAsistente from './pages/FuncionesAsistente';
 import Profile from './pages/Profile';
 import Contact from './pages/Contact';
+import Roadmap from './pages/Roadmap';
 
 const AppContent = () => {
   const { shouldShowOnboarding, completeOnboarding } = useOnboarding();
@@ -33,8 +35,12 @@ const AppContent = () => {
             <Route path="/funciones" element={<FuncionesAsistente />} />
             <Route path="/perfil" element={<Profile />} />
             <Route path="/contacto" element={<Contact />} />
+            <Route path="/roadmap" element={<Roadmap />} />
           </Routes>
         </main>
+
+        {/* Footer - Only show when not in onboarding */}
+        {!shouldShowOnboarding && <Footer />}
       </div>
       
       {/* Onboarding overlay */}

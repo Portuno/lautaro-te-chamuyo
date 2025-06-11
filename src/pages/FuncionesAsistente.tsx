@@ -1,10 +1,11 @@
-import { CheckCircle, UserCheck, AtSign, BookOpen, ClipboardList, CalendarDays, Globe2, MessageCircle, PiggyBank, Users, FileText, Layers } from "lucide-react";
+import { CheckCircle, UserCheck, AtSign, BookOpen, ClipboardList, CalendarDays, Globe2, MessageCircle, PiggyBank, Users, FileText, Layers, Check, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const CATEGORIES = [
   {
     title: "Soporte administrativo",
-    icon: <ClipboardList className="text-coral mr-2" size={20} />,
+    icon: <ClipboardList className="text-blue-600 mr-2" size={20} />,
+    isImplemented: true,
     tasks: [
       "Agendar reuniones o eventos importantes",
       "Gestionar mails y ayudarte a priorizarlos",
@@ -18,7 +19,8 @@ const CATEGORIES = [
   },
   {
     title: "Atención al cliente",
-    icon: <UserCheck className="text-vino mr-2" size={20} />,
+    icon: <UserCheck className="text-green-600 mr-2" size={20} />,
+    isImplemented: true,
     tasks: [
       "Responder preguntas frecuentes automáticamente",
       "Derivar consultas complejas a personas del equipo",
@@ -31,7 +33,8 @@ const CATEGORIES = [
   },
   {
     title: "Gestión de redes sociales",
-    icon: <AtSign className="text-coral mr-2" size={20} />,
+    icon: <AtSign className="text-purple-600 mr-2" size={20} />,
+    isImplemented: false,
     tasks: [
       "Programar publicaciones en Instagram, Facebook o X",
       "Redactar copies atractivos y creativos",
@@ -44,7 +47,8 @@ const CATEGORIES = [
   },
   {
     title: "Marketing y creación de contenido",
-    icon: <BookOpen className="text-vino mr-2" size={20} />,
+    icon: <BookOpen className="text-orange-600 mr-2" size={20} />,
+    isImplemented: false,
     tasks: [
       "Proponer ideas originales para campañas",
       "Escribir borradores de artículos, guiones o posts",
@@ -57,7 +61,8 @@ const CATEGORIES = [
   },
   {
     title: "Investigación",
-    icon: <Globe2 className="text-coral mr-2" size={20} />,
+    icon: <Globe2 className="text-cyan-600 mr-2" size={20} />,
+    isImplemented: false,
     tasks: [
       "Buscar información o recursos en internet",
       "Consultar tendencias del sector",
@@ -70,7 +75,8 @@ const CATEGORIES = [
   },
   {
     title: "Gestión de proyectos y eventos",
-    icon: <CalendarDays className="text-vino mr-2" size={20} />,
+    icon: <CalendarDays className="text-red-600 mr-2" size={20} />,
+    isImplemented: true,
     tasks: [
       "Crear y actualizar listas de tareas por proyecto",
       "Hacer seguimiento de deadlines",
@@ -83,7 +89,8 @@ const CATEGORIES = [
   },
   {
     title: "Tareas técnicas y creativas",
-    icon: <Layers className="text-coral mr-2" size={20} />,
+    icon: <Layers className="text-indigo-600 mr-2" size={20} />,
+    isImplemented: false,
     tasks: [
       "Edición básica de imágenes y PDFs",
       "Ideas para diseño web o presentaciones",
@@ -96,7 +103,8 @@ const CATEGORIES = [
   },
   {
     title: "Finanzas y ventas",
-    icon: <PiggyBank className="text-vino mr-2" size={20} />,
+    icon: <PiggyBank className="text-emerald-600 mr-2" size={20} />,
+    isImplemented: false,
     tasks: [
       "Armar pequeños reportes de gastos",
       "Gestionar presupuestos o cobrar clientes",
@@ -109,7 +117,8 @@ const CATEGORIES = [
   },
   {
     title: "Reclutamiento y RR.HH.",
-    icon: <Users className="text-coral mr-2" size={20} />,
+    icon: <Users className="text-pink-600 mr-2" size={20} />,
+    isImplemented: false,
     tasks: [
       "Redactar descripciones de puestos",
       "Filtrar CVs según tus criterios",
@@ -122,7 +131,8 @@ const CATEGORIES = [
   },
   {
     title: "Transcripción y traducción",
-    icon: <FileText className="text-vino mr-2" size={20} />,
+    icon: <FileText className="text-teal-600 mr-2" size={20} />,
+    isImplemented: false,
     tasks: [
       "Transcribir audios o videos a texto",
       "Traducir mensajes, documentos o mails simples",
@@ -135,7 +145,8 @@ const CATEGORIES = [
   },
   {
     title: "Tareas varias",
-    icon: <CheckCircle className="text-coral mr-2" size={20} />,
+    icon: <CheckCircle className="text-violet-600 mr-2" size={20} />,
+    isImplemented: false,
     tasks: [
       "Llevar listas y checklists de cualquier tipo",
       "Ayudar a buscar lugares cercanos o servicios",
@@ -153,10 +164,10 @@ const FuncionesAsistente = () => (
     {/* Compact Header */}
     <section className="w-full bg-gradient-to-r from-vino to-terracota py-12 px-4 shadow-lg">
       <div className="max-w-4xl mx-auto text-center">
-        <h1 className="text-3xl md:text-4xl font-bold mb-3 text-beige font-quicksand">
+        <h1 className="text-3xl md:text-4xl font-bold mb-3 text-white font-quicksand drop-shadow-lg">
           Todo lo que Lautaro puede hacer por vos
         </h1>
-        <p className="text-lg text-beige/90 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-lg text-white/95 max-w-2xl mx-auto leading-relaxed drop-shadow-md">
           No solo es eficiente: Lautaro te acompaña todo el día con calidez y una vuelta porteña que te saca una sonrisa, incluso cuando hay mucho por hacer.
         </p>
       </div>
@@ -166,59 +177,102 @@ const FuncionesAsistente = () => (
     <section className="max-w-6xl mx-auto px-4 py-8">
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {CATEGORIES.map((cat, i) => (
-          <div key={i} className="bg-white/95 dark:bg-[#2e1e21]/95 rounded-xl shadow-lg p-5 border border-gray-100 dark:border-gray-700 backdrop-blur-sm hover:shadow-xl transition-all duration-200 hover:scale-[1.02]">
+          <div key={i} className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all duration-200 hover:scale-[1.02] relative">
+            {/* Status Badge */}
+            <div className="absolute top-4 right-4">
+              {cat.isImplemented ? (
+                <div className="flex items-center gap-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 px-2 py-1 rounded-full text-xs font-medium">
+                  <Check className="w-3 h-3" />
+                  <span>Activo</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 px-2 py-1 rounded-full text-xs font-medium">
+                  <Clock className="w-3 h-3" />
+                  <span>Pronto</span>
+                </div>
+              )}
+            </div>
+
             {/* Header */}
-            <div className="flex items-center mb-3">
+            <div className="flex items-center mb-4 pr-16">
               {cat.icon}
-              <h2 className="text-lg font-bold text-vino dark:text-beige font-quicksand">{cat.title}</h2>
+              <h2 className="text-lg font-bold text-gray-800 dark:text-white font-quicksand">{cat.title}</h2>
             </div>
             
             {/* Tasks List */}
-            <ul className="text-sm text-gray-700 dark:text-gray-300 mb-4 space-y-1">
+            <ul className="text-sm text-gray-700 dark:text-gray-300 mb-5 space-y-2">
               {cat.tasks.map((task, j) => (
                 <li key={j} className="flex items-start">
-                  <span className="text-coral mr-2 text-xs mt-1">•</span>
-                  <span>{task}</span>
+                  <span className="text-vino dark:text-coral mr-2 text-sm font-bold mt-0.5">•</span>
+                  <span className="leading-relaxed">{task}</span>
                 </li>
               ))}
             </ul>
             
             {/* Example Dialog */}
-            <div className="bg-gray-50 dark:bg-[#3e2e31] rounded-lg p-3 space-y-2">
-              <div className="flex items-start gap-2">
-                <div className="w-5 h-5 rounded-full bg-coral flex items-center justify-center text-white text-xs font-bold">V</div>
-                <div className="bg-white dark:bg-[#4e3e41] rounded-lg px-2 py-1 text-xs text-gray-700 dark:text-gray-300 flex-1">
+            <div className="bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-700 dark:to-gray-750 rounded-lg p-4 space-y-3 border border-gray-200 dark:border-gray-600">
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                  T
+                </div>
+                <div className="bg-white dark:bg-gray-600 rounded-lg px-3 py-2 text-xs text-gray-800 dark:text-gray-100 flex-1 shadow-sm border border-gray-200 dark:border-gray-500">
                   {cat.example.user}
                 </div>
               </div>
-              <div className="flex items-start gap-2">
-                <div className="w-5 h-5 rounded-full bg-vino flex items-center justify-center text-white text-xs font-bold">L</div>
-                <div className="bg-sand dark:bg-[#5e4e51] rounded-lg px-2 py-1 text-xs text-terracota dark:text-beige flex-1">
+              <div className="flex items-start gap-3">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-r from-vino to-terracota flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                  L
+                </div>
+                <div className="bg-gradient-to-r from-coral/20 to-orange-100 dark:from-vino/20 dark:to-terracota/20 rounded-lg px-3 py-2 text-xs text-gray-800 dark:text-gray-100 flex-1 shadow-sm border border-coral/30 dark:border-vino/30">
                   {cat.example.lautaro}
                 </div>
               </div>
             </div>
+
+            {/* Call to Action for non-implemented features */}
+            {!cat.isImplemented && (
+              <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <p className="text-xs text-gray-500 dark:text-gray-400 text-center">
+                  Esta función está en nuestro{' '}
+                  <a href="/roadmap" className="text-vino dark:text-coral hover:underline font-medium">
+                    roadmap
+                  </a>
+                  . ¡Pronto disponible!
+                </p>
+              </div>
+            )}
           </div>
         ))}
       </div>
 
       {/* CTA Section */}
       <div className="text-center mt-12">
-        <div className="bg-white/90 dark:bg-[#2e1e21]/90 rounded-2xl shadow-xl p-8 max-w-md mx-auto backdrop-blur-sm">
-          <h3 className="text-xl font-bold text-vino dark:text-beige mb-3">
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 max-w-md mx-auto border border-gray-200 dark:border-gray-700">
+          <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-3">
             ¿Te copa probarlo?
           </h3>
-          <p className="text-gray-600 dark:text-gray-300 mb-5 text-sm">
+          <p className="text-gray-600 dark:text-gray-300 mb-5 text-sm leading-relaxed">
             Empezá a usar Lautaro gratis y descubrí cómo puede ayudarte en tu día a día.
           </p>
-          <Button
-            asChild
-            className="bg-vino hover:bg-terracota transition-all px-8 py-3 rounded-xl text-white font-semibold shadow-lg hover:scale-105 duration-200"
-          >
-            <a href="/#demo">
-              Probalo gratis
-            </a>
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Button
+              asChild
+              className="bg-gradient-to-r from-vino to-terracota hover:from-vino/90 hover:to-terracota/90 transition-all px-6 py-3 rounded-xl text-white font-semibold shadow-lg hover:scale-105 duration-200"
+            >
+              <a href="/chat">
+                💬 Chatear Gratis
+              </a>
+            </Button>
+            <Button
+              asChild
+              variant="outline"
+              className="border-vino text-vino hover:bg-vino hover:text-white px-6 py-3 rounded-xl transition-all"
+            >
+              <a href="/roadmap">
+                🗺️ Ver Roadmap
+              </a>
+            </Button>
+          </div>
         </div>
       </div>
     </section>
