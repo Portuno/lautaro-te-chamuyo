@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Send, User, Mail, MessageSquare, CheckCircle, AlertCircle } from 'lucide-react';
+import { useSEO } from '../hooks/useSEO';
 
 interface ContactForm {
   name: string;
@@ -10,6 +11,15 @@ interface ContactForm {
 }
 
 const Contact: React.FC = () => {
+  // SEO optimization for Contact page
+  useSEO({
+    title: 'Contacto - Lautaro | Sugerencias, Colaboraciones y Soporte',
+    description: 'Contactá al equipo de Lautaro. Envía sugerencias, propuestas de colaboración, feedback técnico o consultas. Respuesta garantizada para temas importantes.',
+    keywords: 'contacto lautaro, soporte asistente digital, sugerencias IA, colaboraciones, feedback, propuestas, inversión, prensa',
+    type: 'website',
+    image: 'https://lautaro-te-chamuyo.vercel.app/og-contacto.jpg'
+  });
+
   const [form, setForm] = useState<ContactForm>({
     name: '',
     email: '',

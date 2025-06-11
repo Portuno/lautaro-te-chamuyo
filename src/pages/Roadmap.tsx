@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CheckCircle, Clock, Calendar, Zap, Users, Star, ArrowRight, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useSEO } from '../hooks/useSEO';
 
 interface RoadmapItem {
   id: string;
@@ -140,6 +141,15 @@ const categoryConfig = {
 };
 
 const Roadmap: React.FC = () => {
+  // SEO optimization for Roadmap page
+  useSEO({
+    title: 'Roadmap de Lautaro - Plan de Desarrollo y Nuevas Funciones 2025',
+    description: 'Mirá el roadmap completo de Lautaro: funciones completadas, en desarrollo y planificadas. Google Calendar, transcripción de audio, Gmail, app móvil y más.',
+    keywords: 'roadmap lautaro, desarrollo asistente digital, nuevas funciones IA, google calendar, transcripción audio, gmail integración, app móvil, planificación 2025',
+    type: 'website',
+    image: 'https://lautaro-te-chamuyo.vercel.app/og-roadmap.jpg'
+  });
+
   const [selectedFilter, setSelectedFilter] = useState<string | null>(null);
 
   const filteredItems = roadmapData.filter(item => {
